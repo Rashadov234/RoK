@@ -24,6 +24,12 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+
   html, body {
     background: var(--void);
     color: var(--cream);
@@ -39,6 +45,7 @@
     z-index: 0;
     overflow: hidden;
     background: #000;
+    transform: translateZ(0);
   }
   .bg-stage canvas {
     width: 100%;
@@ -55,15 +62,17 @@
     background:
       radial-gradient(ellipse at 50% 30%, transparent 0%, rgba(7,9,13,0.55) 55%, rgba(7,9,13,0.92) 100%),
       linear-gradient(180deg, rgba(7,9,13,0.4) 0%, rgba(7,9,13,0.1) 25%, rgba(7,9,13,0.85) 100%);
+    transform: translateZ(0);
   }
+  /* Grain: no blend mode (was the main scroll-jank source) */
   .bg-grain {
     position: fixed;
     inset: 0;
     z-index: 2;
     pointer-events: none;
-    opacity: 0.08;
-    mix-blend-mode: overlay;
+    opacity: 0.05;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    transform: translateZ(0);
   }
 
   /* ---------- LOADER ---------- */
@@ -460,6 +469,9 @@
   section.scroll {
     padding: 120px 0;
     position: relative;
+    /* Browser skips paint/layout when section is fully offscreen */
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 900px;
   }
   .section-head {
     display: flex;
@@ -562,8 +574,8 @@
     background:
       radial-gradient(ellipse at 50% 22%, rgba(77,208,255,0.12), transparent 55%),
       linear-gradient(180deg, rgba(28,53,99,0.42) 0%, rgba(12,26,54,0.48) 55%, rgba(28,53,99,0.30) 100%);
-    backdrop-filter: blur(10px) saturate(120%);
-    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     clip-path: polygon(0 0, 100% 0, 100% 86%, 50% 100%, 0 86%);
     box-shadow:
       inset 2px 0 0 var(--gold),
@@ -780,16 +792,22 @@
 
   /* ---------- CTA / DISCORD ---------- */
   .cta-grid {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    display: flex;
+    justify-content: center;
     gap: 32px;
   }
   .cta-card {
     border: 1px solid rgba(201,169,97,0.25);
     background: linear-gradient(180deg, rgba(20,15,10,0.85), rgba(8,6,4,0.9));
-    padding: 48px;
+    padding: 52px 56px;
     position: relative;
     overflow: hidden;
+    width: 100%;
+    max-width: 640px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   .cta-card::before {
     content: "";
@@ -828,20 +846,19 @@
     font-size: 0.98rem;
     margin-bottom: 28px;
     font-weight: 300;
+    max-width: 460px;
   }
   .cta-card.discord {
     background:
-      radial-gradient(circle at 80% 20%, rgba(88,101,242,0.15), transparent 60%),
+      radial-gradient(circle at 50% 0%, rgba(88,101,242,0.18), transparent 60%),
       linear-gradient(180deg, rgba(20,15,10,0.85), rgba(8,6,4,0.9));
-      transform: translateX(300px) translateY(-20px);
   }
   .discord-icon {
-    width: 60px; height: 60px;
+    width: 64px; height: 64px;
     border: 1px solid rgba(88,101,242,0.6);
     display: flex; align-items: center; justify-content: center;
-    margin-bottom: 24px;
-    box-shadow: 0 0 30px rgba(88,101,242,0.25);
-    transform: translateX(260px) translateY(-5px);
+    margin-bottom: 22px;
+    box-shadow: 0 0 30px rgba(88,101,242,0.28);
   }
   .discord-icon svg { width: 28px; height: 28px; fill: #aab4f5; }
   .cta-card.discord h3 em { color: #aab4f5; }
@@ -960,8 +977,13 @@
     .hero-stat { padding: 18px; border-right: none; border-bottom: 1px solid rgba(201,169,97,0.15); }
     .hero-stat:nth-child(odd) { border-right: 1px solid rgba(201,169,97,0.15); }
     .hero-stat:nth-last-child(-n+2) { border-bottom: none; }
-    .cta-grid { grid-template-columns: 1fr; }
-    .cta-card, .application { padding: 32px 24px; }
+    .cta-grid { padding: 0; }
+    .cta-card { padding: 32px 20px; max-width: 100%; min-width: 0; }
+    .cta-card p { font-size: 0.92rem; margin-bottom: 22px; max-width: 100%; }
+    .cta-card h3 { font-size: 1.5rem; }
+    .application { padding: 32px 24px; }
+    .discord-icon { width: 56px; height: 56px; margin-bottom: 18px; }
+    .discord-icon svg { width: 24px; height: 24px; }
 
     /* Champion banner grid: 3 → 2 columns on smaller screens */
     .champ-grid { grid-template-columns: repeat(3, 1fr); gap: 22px 16px; }
@@ -1112,9 +1134,8 @@
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
             <span class="champ-discord-name" data-username="dune_rayitodesol">Tap to reveal</span>
-            <p class="champ-bio">Just playing a game.<br>
-                               But i play it fiercely<br>
-                               Have fun. Be positive.<br>
+            <p class="champ-bio">The One Who Writes Outcomes.<br>
+                               Fate-level strategist.<br>
                                </p>
             <button type="button" class="champ-flip-btn flip-back" data-flip>← Back</button>
           </div></div></div>
@@ -1130,9 +1151,8 @@
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
             <span class="champ-discord-name" data-username="miavinca">Tap to reveal</span>
-            <p class="champ-bio">Organized when wired<br>
-                                 Unhinged when tired<br>
-                                 Just a nerd who loves nerdy.
+            <p class="champ-bio">Keeper of the Infinite Accord.<br>
+                                 Prevents or triggers global alliances at will.<br>
                                  </p>
             <button type="button" class="champ-flip-btn flip-back" data-flip>← Back</button>
           </div></div></div>
@@ -1148,7 +1168,7 @@
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
             <span class="champ-discord-name" data-username="mptizzle">Tap to reveal</span>
-            <p class="champ-bio">Add a short bio here about MpTizzle.</p>
+            <p class="champ-bio">Field Intelligence Operative.</p>
             <button type="button" class="champ-flip-btn flip-back" data-flip>← Back</button>
           </div></div></div>
         </div>
@@ -1164,8 +1184,10 @@
             <button type="button" class="champ-discord" aria-label="Reveal Discord username">
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
-            <span class="champ-discord-name" data-username="bambieeta">Tap to reveal</span>
-            <p class="champ-bio">Add a short bio here about Bambie.</p>
+            <span class="champ-discord-name" data-username="rashadov">Tap to reveal</span>
+            <p class="champ-bio">The Architect of Obedience.<br>
+                                 Every command is part of a larger structure of controlled perfection<br>
+                                </p>
             <button type="button" class="champ-flip-btn flip-back" data-flip>← Back</button>
           </div></div></div>
 

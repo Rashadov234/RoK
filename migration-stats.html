@@ -29,24 +29,39 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+
   html, body {
     color: var(--cream);
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
     min-height: 100vh;
+    background: #07090d;
+  }
+  /* Fixed backdrop — painted once into its own GPU layer, no scroll repaint cost */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
     background:
       radial-gradient(ellipse at 50% 0%, rgba(77,208,255,0.05) 0%, transparent 45%),
       radial-gradient(ellipse at 80% 80%, rgba(201,169,97,0.06) 0%, transparent 50%),
       radial-gradient(ellipse at 10% 60%, rgba(139,26,26,0.05) 0%, transparent 55%),
       linear-gradient(180deg, #050709 0%, #0a0d12 40%, #07090d 100%);
-    background-attachment: fixed;
+    transform: translateZ(0);
   }
 
-  /* ---------- STATIC TEXTURE ---------- */
+  /* ---------- STATIC TEXTURE (cheaper: no blend mode) ---------- */
   .bg-grain {
     position: fixed; inset: 0; z-index: 1; pointer-events: none;
-    opacity: 0.06; mix-blend-mode: overlay;
+    opacity: 0.045;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    transform: translateZ(0);
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -123,6 +138,45 @@
     color: rgba(244,232,208,0.72); font-weight: 300; line-height: 1.65;
     font-size: 1.02rem;
   }
+  .sync-status {
+    display: inline-flex; align-items: center; gap: 12px;
+    margin-top: 22px;
+    padding: 8px 14px;
+    background: rgba(20,15,10,0.55);
+    border: 1px solid rgba(201,169,97,0.22);
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: rgba(244,232,208,0.6);
+  }
+  .sync-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--rune);
+    box-shadow: 0 0 10px var(--rune);
+    animation: sync-pulse 1.8s ease-in-out infinite;
+  }
+  .sync-status.is-loading .sync-dot { background: var(--gold-bright); box-shadow: 0 0 12px var(--gold-bright); animation-duration: 0.9s; }
+  .sync-status.is-error .sync-dot { background: var(--t-mythic); box-shadow: 0 0 10px var(--t-mythic); animation: none; }
+  @keyframes sync-pulse {
+    0%, 100% { opacity: 0.5; transform: scale(0.85); }
+    50%      { opacity: 1;   transform: scale(1.1); }
+  }
+  .sync-btn {
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--gold) 50%, transparent);
+    color: var(--gold-bright);
+    font-family: 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background 0.3s, border-color 0.3s, color 0.3s;
+  }
+  .sync-btn:hover { background: rgba(201,169,97,0.12); border-color: var(--gold-bright); color: #fff; }
+  .sync-btn:disabled { opacity: 0.4; cursor: wait; }
 
   /* ---------- SUMMARY ---------- */
   .summary {
@@ -188,6 +242,9 @@
     border-bottom: none;
     clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), 50% 100%, 0 calc(100% - 24px));
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Browser-skip rendering when offscreen — big scroll win */
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 420px;
   }
   .banner:hover {
     transform: translateY(-3px);
@@ -439,6 +496,11 @@
         A live ledger of incoming banners. Every tier holds a finite number of seats —
         once a seat is sworn, it's marked. Petitions are still open against the empty rows below.
       </p>
+      <div class="sync-status" id="syncStatus" aria-live="polite">
+        <span class="sync-dot"></span>
+        <span class="sync-text">Syncing…</span>
+        <button type="button" class="sync-btn" id="syncBtn" aria-label="Refresh now">Sync Now</button>
+      </div>
     </div>
   </section>
 
@@ -582,7 +644,7 @@
       </div>
 
       <div class="cta-row">
-        <a href="index.html#apply" class="btn btn-primary">File a Petition ›</a>
+        <a href="index.html#apply" class="btn btn-primary">Open Apllication Form ›</a>
         <a href="index.html#join" class="btn">Open Discord</a>
       </div>
 
@@ -629,7 +691,9 @@
   async function loadFromSheet() {
     if (!SHEET_CSV_URL) return false;
     try {
-      const res = await fetch(SHEET_CSV_URL, { cache: 'no-store' });
+      // Add a cache-busting param so intermediate caches (and sometimes Google's CDN) serve fresh data
+      const bust = (SHEET_CSV_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
+      const res = await fetch(SHEET_CSV_URL + bust, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const csv = await res.text();
       const rows = parseCSV(csv);
@@ -759,14 +823,56 @@
     });
   }
 
+  // ----- Sync status indicator -----
+  const syncStatus = document.getElementById('syncStatus');
+  const syncBtn    = document.getElementById('syncBtn');
+  const syncText   = syncStatus && syncStatus.querySelector('.sync-text');
+  let lastSyncAt   = null;
+
+  function setSyncState(state, text) {
+    if (!syncStatus) return;
+    syncStatus.classList.toggle('is-loading', state === 'loading');
+    syncStatus.classList.toggle('is-error',   state === 'error');
+    if (syncText && text) syncText.textContent = text;
+  }
+  function fmtAgo(ms) {
+    const s = Math.floor((Date.now() - ms) / 1000);
+    if (s < 5)  return 'just now';
+    if (s < 60) return s + 's ago';
+    const m = Math.floor(s / 60);
+    if (m < 60) return m + 'm ago';
+    const h = Math.floor(m / 60);
+    return h + 'h ago';
+  }
+  function tickSyncText() {
+    if (lastSyncAt && !syncStatus.classList.contains('is-loading') && !syncStatus.classList.contains('is-error')) {
+      setSyncState('idle', 'Updated ' + fmtAgo(lastSyncAt));
+    }
+  }
+  setInterval(tickSyncText, 5000);
+
   // ----- Bootstrap: fetch sheet (if configured) → render → recalc totals -----
+  let refreshing = false;
   async function refresh() {
-    await loadFromSheet();
+    if (refreshing) return;
+    refreshing = true;
+    if (syncBtn) syncBtn.disabled = true;
+    setSyncState('loading', 'Syncing…');
+    const ok = await loadFromSheet();
     refreshMigrationStats();
+    if (SHEET_CSV_URL && !ok) {
+      setSyncState('error', 'Sync failed');
+    } else {
+      lastSyncAt = Date.now();
+      setSyncState('idle', SHEET_CSV_URL ? 'Updated just now' : 'Static data');
+    }
+    refreshing = false;
+    if (syncBtn) syncBtn.disabled = false;
   }
   refresh();
+  if (syncBtn) syncBtn.addEventListener('click', refresh);
 
-  // Optional polling
+  // Polling
   if (POLL_SECONDS > 0 && SHEET_CSV_URL) {
     setInterval(refresh, POLL_SECONDS * 1000);
   }
