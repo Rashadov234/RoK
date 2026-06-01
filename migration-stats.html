@@ -849,7 +849,7 @@
       setSyncState('idle', 'Updated ' + fmtAgo(lastSyncAt));
     }
   }
-  setInterval(tickSyncText, 5000);
+  setInterval(tickSyncText, 1000);
 
   // ----- Bootstrap: fetch sheet (if configured) → render → recalc totals -----
   let refreshing = false;
