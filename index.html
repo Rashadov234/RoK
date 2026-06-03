@@ -415,6 +415,109 @@
     flex-wrap: wrap;
   }
 
+  /* ---------- ALLIANCES PANEL ---------- */
+  .alliances-panel {
+    margin-top: 0;
+    max-width: 880px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition: max-height 0.55s ease, opacity 0.4s ease, margin-top 0.4s ease, visibility 0s linear 0.55s;
+    background: linear-gradient(180deg, rgba(20,15,10,0.82), rgba(8,6,4,0.88));
+    border: 1px solid rgba(201,169,97,0.28);
+    position: relative;
+  }
+  .alliances-panel.open {
+    max-height: 800px;
+    opacity: 1;
+    margin-top: 32px;
+    visibility: visible;
+    transition: max-height 0.55s ease, opacity 0.4s ease, margin-top 0.4s ease, visibility 0s linear 0s;
+  }
+  .alliances-panel::before, .alliances-panel::after {
+    content: "";
+    position: absolute;
+    width: 14px; height: 14px;
+    border: 1px solid var(--gold);
+  }
+  .alliances-panel::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .alliances-panel::after  { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+  .alliances-head {
+    padding: 18px 24px 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border-bottom: 1px solid rgba(201,169,97,0.18);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .alliances-head::before {
+    content: "";
+    width: 30px; height: 1px;
+    background: var(--gold);
+  }
+  .alliances-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .alliances-table th {
+    padding: 14px 24px 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(244,232,208,0.5);
+    text-align: left;
+    font-weight: 600;
+    background: rgba(15,11,7,0.5);
+    border-bottom: 1px solid rgba(201,169,97,0.18);
+  }
+  .alliances-table tbody tr {
+    border-bottom: 1px solid rgba(201,169,97,0.08);
+    transition: background 0.3s;
+  }
+  .alliances-table tbody tr:last-child { border-bottom: none; }
+  .alliances-table tbody tr:hover { background: rgba(201,169,97,0.04); }
+  .alliances-table td {
+    padding: 16px 24px;
+    vertical-align: top;
+  }
+  .al-tag {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    font-weight: 700;
+    color: var(--rune);
+    white-space: nowrap;
+    width: 100px;
+  }
+  .al-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--cream);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    width: 1%;
+  }
+  .al-bio {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.98rem;
+    color: rgba(244,232,208,0.7);
+    line-height: 1.5;
+  }
+  /* Toggle button arrow flips when open */
+  #alliancesToggle .arr {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 0.7rem;
+  }
+  #alliancesToggle[aria-expanded="true"] .arr { transform: rotate(180deg); }
+
   /* ---------- BUTTONS ---------- */
   .btn {
     display: inline-flex;
@@ -599,7 +702,7 @@
 
   /* Portrait frame — now holds the governor's name */
   .champ-portrait {
-    width: 97px; height: 65px;
+    width: 124px; height: 50px;
     position: relative;
     background:
       radial-gradient(circle at 50% 50%,
@@ -611,14 +714,14 @@
       inset 0 0 14px rgba(0,0,0,0.7);
     display: flex; align-items: center; justify-content: center;
     font-family: 'Cinzel', serif; font-weight: 700;
-    font-size: 0.74rem;
-    line-height: 1.18;
+    font-size: 0.72rem;
+    line-height: 1;
     letter-spacing: 0.02em;
     color: var(--gold-bright);
     text-shadow: 0 0 10px var(--portrait-glow), 0 1px 3px rgba(0,0,0,0.85);
     text-align: center;
-    padding: 6px;
-    word-break: break-word;
+    padding: 4px 8px;
+    white-space: nowrap;
     margin-top: 30px;
     margin-bottom: 14px;
   }
@@ -981,6 +1084,16 @@
     .cta-card { padding: 32px 20px; max-width: 100%; min-width: 0; }
     .cta-card p { font-size: 0.92rem; margin-bottom: 22px; max-width: 100%; }
     .cta-card h3 { font-size: 1.5rem; }
+
+    /* Alliances table — stack as cards on mobile */
+    .alliances-head { padding: 14px 18px 12px; font-size: 0.62rem; letter-spacing: 0.32em; }
+    .alliances-table thead { display: none; }
+    .alliances-table, .alliances-table tbody, .alliances-table tr, .alliances-table td { display: block; width: 100%; }
+    .alliances-table tbody tr { padding: 14px 18px 16px; border-bottom: 1px solid rgba(201,169,97,0.12); }
+    .alliances-table td { padding: 0; }
+    .al-tag { width: auto; font-size: 0.7rem; margin-bottom: 4px; }
+    .al-name { width: auto; font-size: 0.95rem; margin-bottom: 8px; }
+    .al-bio { font-size: 0.95rem; }
     .application { padding: 32px 24px; }
     .discord-icon { width: 56px; height: 56px; margin-bottom: 18px; }
     .discord-icon svg { width: 24px; height: 24px; }
@@ -996,7 +1109,7 @@
     .champ-banner { max-width: 155px; min-height: 320px; }
     .face { padding: 42px 8px 60px; }
     .face.back { padding: 36px 10px 60px; }
-    .champ-portrait { width: 72px; height: 82px; font-size: 0.68rem; }
+    .champ-portrait { width: 116px; height: 46px; font-size: 0.66rem; }
     .champ-crest { width: 44px; height: 54px; }
     .champ-bio { font-size: 0.78rem; }
     .champ-discord { width: 50px; height: 50px; }
@@ -1086,6 +1199,44 @@
       <div class="hero-actions">
         <a href="#join" class="btn btn-primary">Enlist Now ›</a>
         <a href="#leaderboard" class="btn btn-rune">View Leadership</a>
+        <button type="button" class="btn" id="alliancesToggle" aria-expanded="false" aria-controls="alliancesPanel">
+          Show Alliances <span class="arr">▾</span>
+        </button>
+      </div>
+
+      <div class="alliances-panel" id="alliancesPanel" aria-hidden="true">
+        <div class="alliances-head">The Sworn Banners</div>
+        <table class="alliances-table">
+          <thead>
+            <tr>
+              <th>Tag</th>
+              <th>Alliance</th>
+              <th>Bio</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="al-tag">[RoK]</td>
+              <td class="al-name">Realm Of Krakens</td>
+              <td class="al-bio">The flagship alliance. Front-line marshals and KvK leads.</td>
+            </tr>
+            <tr>
+              <td class="al-tag">[RőK]</td>
+              <td class="al-name">Realm Of Krakens</td>
+              <td class="al-bio">Naval supremacy and coastal raids. Discipline above all.</td>
+            </tr>
+            <tr>
+              <td class="al-tag">[LOK]</td>
+              <td class="al-name">Legion Of Killers</td>
+              <td class="al-bio">Veteran legion — PvE specialists and resource holders.</td>
+            </tr>
+            <tr>
+              <td class="al-tag">[SAR]</td>
+              <td class="al-name">Strongest Army</td>
+              <td class="al-bio">Migration sponsors. Builder packs and mentor pairings for new banners.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
@@ -1117,7 +1268,8 @@
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
             <span class="champ-discord-name" data-username="prokillersivvv">Tap to reveal</span>
-            <p class="champ-bio">King of the realm. Edit me to add their story.</p>
+            <p class="champ-bio">The One Who Binds the Realms<br>
+                               Maintains unity and order. </p>
             <button type="button" class="champ-flip-btn flip-back" data-flip>← Back</button>
           </div></div></div>
         </div>
@@ -1134,7 +1286,7 @@
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
             <span class="champ-discord-name" data-username="dune_rayitodesol">Tap to reveal</span>
-            <p class="champ-bio">The One Who Writes Outcomes.<br>
+            <p class="champ-bio">The One Who Writes Outcomes<br>
                                Fate-level strategist.<br>
                                </p>
             <button type="button" class="champ-flip-btn flip-back" data-flip>← Back</button>
@@ -1151,8 +1303,8 @@
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
             <span class="champ-discord-name" data-username="miavinca">Tap to reveal</span>
-            <p class="champ-bio">Keeper of the Infinite Accord.<br>
-                                 Prevents or triggers global alliances at will.<br>
+            <p class="champ-bio">Master Of Diplomacy<br>
+                                 Prevents/Triggers global alliances.<br>
                                  </p>
             <button type="button" class="champ-flip-btn flip-back" data-flip>← Back</button>
           </div></div></div>
@@ -1168,7 +1320,9 @@
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
             <span class="champ-discord-name" data-username="mptizzle">Tap to reveal</span>
-            <p class="champ-bio">Field Intelligence Operative.</p>
+            <p class="champ-bio">Field Intelligence Operative<br>
+                                Eye In The Sky.<br>
+                                </p>
             <button type="button" class="champ-flip-btn flip-back" data-flip>← Back</button>
           </div></div></div>
         </div>
@@ -1176,7 +1330,7 @@
         <div class="champ-row">
           <!-- V --><div class="champ-banner"><div class="champ-flip"><div class="face front">
             <svg class="champ-top" viewBox="0 0 200 64" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#c9a961" stroke-width="1.6" stroke-linecap="round"><circle cx="100" cy="34" r="11" stroke-width="2"/><circle cx="100" cy="34" r="4" fill="#c9a961"/><path d="M89 34 Q70 32 56 22 Q42 12 26 22 Q14 30 4 32"/><path d="M111 34 Q130 32 144 22 Q158 12 174 22 Q186 30 196 32"/><circle cx="42" cy="20" r="2.2" fill="#c9a961"/><circle cx="158" cy="20" r="2.2" fill="#c9a961"/><path d="M70 36 Q66 40 60 42"/><path d="M130 36 Q134 40 140 42"/></svg>
-            <div class="champ-portrait">RashAD</div>
+            <div class="champ-portrait">RushAD</div>
             <div class="champ-crest"><div class="shield"></div><span class="pos">R4</span></div>
             <button type="button" class="champ-flip-btn" data-flip>View Profile ›</button>
           </div><div class="face back">
@@ -1185,8 +1339,8 @@
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
             <span class="champ-discord-name" data-username="rashadov">Tap to reveal</span>
-            <p class="champ-bio">The Architect of Obedience.<br>
-                                 Every command is part of a larger structure of controlled perfection<br>
+            <p class="champ-bio">The Architect of Obedience<br>
+                                 Every command is part of a larger structure.<br>
                                 </p>
             <button type="button" class="champ-flip-btn flip-back" data-flip>← Back</button>
           </div></div></div>
@@ -1214,7 +1368,7 @@
           </div><div class="face back">
             <div class="champ-discord-lbl">Reach Out</div>
             <button type="button" class="champ-discord" aria-label="Reveal Discord username">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 false .true .true .true .true .true .true .true .true .true .true .true .true .true .true .true .true .true .true .true .true . true">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
             <span class="champ-discord-name" data-username="celladow">Tap to reveal</span>
             <p class="champ-bio">Add a short bio here about Celladow.</p>
@@ -1232,7 +1386,8 @@
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
             <span class="champ-discord-name" data-username="anubisovi_48082">Tap to reveal</span>
-            <p class="champ-bio">Add a short bio here about DarthRevan.</p>
+            <p class="champ-bio">General Legionnaire<br>
+                                Miss and be missed.</p>
             <button type="button" class="champ-flip-btn flip-back" data-flip>← Back</button>
           </div></div></div>
 
@@ -1247,7 +1402,8 @@
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </button>
             <span class="champ-discord-name" data-username="kaje4043">Tap to reveal</span>
-            <p class="champ-bio">Add a short bio here about Kaje.</p>
+            <p class="champ-bio">The Binder of Banners<br>
+                                Ensuring communication survives in times of war.</p>
             <button type="button" class="champ-flip-btn flip-back" data-flip>← Back</button>
           </div></div></div>
         </div>
@@ -1301,10 +1457,10 @@
         </p>
         <div class="application-actions">
           <button class="btn btn-primary" id="toggleForm">Open Application Scroll ›</button>
-          <a href="https://forms.gle/qcuUhHBdb37GiMgF7" target="_blank" class="btn">Open in New Tab</a>
+          <a href="https://forms.gle/4rFjRzSDoEaA1VpP8" target="_blank" class="btn">Open in New Tab</a>
         </div>
         <div class="form-toggle-wrap">
-          <iframe id="formFrame" src="about:blank" data-src="https://docs.google.com/forms/d/e/1FAIpQLSe-Qvd6uwhMEa4NCU8-xNazxgGekMCB9xbUrFbcUh6DGlU8kA/viewform?embedded=true" loading="lazy"></iframe>
+          <iframe id="formFrame" src="about:blank" data-src="https://docs.google.com/forms/d/e/1FAIpQLScSaPrHj-sNpEAWBDlL3SU6flyjnodF94xLBjRlmxlceXtJWQ/viewform?embedded=true" loading="lazy"></iframe>
         </div>
       </div>
     </div>
@@ -1460,6 +1616,18 @@
     mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') closeMenu();
+    });
+  }
+
+  // ===== ALLIANCES PANEL TOGGLE =====
+  const alliancesToggle = document.getElementById('alliancesToggle');
+  const alliancesPanel  = document.getElementById('alliancesPanel');
+  if (alliancesToggle && alliancesPanel) {
+    alliancesToggle.addEventListener('click', () => {
+      const open = alliancesPanel.classList.toggle('open');
+      alliancesToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      alliancesPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+      alliancesToggle.firstChild.textContent = (open ? 'Hide Alliances ' : 'Show Alliances ');
     });
   }
 
