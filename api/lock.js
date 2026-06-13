@@ -14,14 +14,14 @@
  *
  *  SETUP (one-time)
  *  ----------------
- *  Vercel dashboard → project "ro-k" → Storage tab → Create database
- *  → Blob → connect it to the project. Vercel auto-provisions the
- *  BLOB_READ_WRITE_TOKEN env var. Then push (or redeploy) and you're
- *  done.
+ *  Vercel dashboard → project → Storage tab → Create database → Blob →
+ *  connect to the project. Modern Blob uses OIDC: Vercel auto-issues a
+ *  short-lived token to the function at runtime — nothing for you to
+ *  paste into env vars. Then push (or redeploy) and you're done.
  *
  *  If Vercel Blob is NOT yet configured the endpoint degrades safely:
  *  GET returns { open: true } so the apply form stays available; POST
- *  returns 503 with a hint.
+ *  returns 500 with a hint surfaced in the admin card.
  * ===================================================================== */
 
 import { put, head } from '@vercel/blob';
@@ -42,11 +42,10 @@ async function readState() {
 }
 
 async function writeState(next) {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    const err = new Error('Vercel Blob is not configured (BLOB_READ_WRITE_TOKEN missing).');
-    err.code = 503;
-    throw err;
-  }
+  // No explicit token check: modern Vercel Blob uses OIDC (auto-issued
+  // at runtime). The SDK falls back to BLOB_READ_WRITE_TOKEN for legacy
+  // setups. If Blob isn't connected at all, put() throws and our caller
+  // surfaces a clean 500.
   await put(BLOB_KEY, JSON.stringify(next), {
     access: 'public',
     contentType: 'application/json',
