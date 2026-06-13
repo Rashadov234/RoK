@@ -152,6 +152,67 @@
     border-radius: 50%; box-shadow: 0 0 18px var(--gold-bright);
   }
 
+  /* ---------- LOCK STATES ---------- */
+  /* Until the lock check resolves, the form is hidden to avoid flashing
+     the petition for half a second when applications are closed. */
+  #applyForm.is-checking, #closedPanel { display: none; }
+  #applyForm.is-revealed { display: block; }
+  #closedPanel.is-visible { display: block; }
+  #closedPanel {
+    text-align: center;
+    padding: 12px 8px 8px;
+  }
+  #closedPanel .closed-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 0.66rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--t-mythic, #e74e3a);
+    margin-bottom: 18px;
+  }
+  #closedPanel h2 {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 14px;
+  }
+  #closedPanel h2 em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--gold-bright);
+    font-weight: 500;
+  }
+  #closedPanel p {
+    max-width: 520px;
+    margin: 0 auto 26px;
+    color: rgba(244,232,208,0.72);
+    line-height: 1.65;
+    font-size: 1rem;
+    font-weight: 300;
+  }
+  #closedPanel .closed-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: rgba(26,20,16,0.55);
+    border: 1px solid var(--gold);
+    text-decoration: none;
+    transition: color 0.3s, border-color 0.3s, box-shadow 0.3s;
+  }
+  #closedPanel .closed-cta:hover {
+    color: var(--gold-bright);
+    border-color: var(--gold-bright);
+    box-shadow: 0 0 22px rgba(201,169,97,0.28);
+  }
+
   /* ---------- SECTIONS ---------- */
   .form-section { margin-top: 44px; }
   .form-section:first-of-type { margin-top: 0; }
@@ -366,7 +427,18 @@
       <div class="petition">
         <div class="seal"></div>
 
-        <form id="applyForm" novalidate>
+        <!-- Shown when the admin has locked the application gate -->
+        <div id="closedPanel" aria-hidden="true">
+          <div class="closed-eyebrow">The Gate Is Sealed</div>
+          <h2>Migration is <em>closed</em>.</h2>
+          <p>
+            We aren't accepting new petitions right now — the realm reopens between migration
+            windows. Watch our Discord for the announcement when the gate next swings wide.
+          </p>
+          <a href="index.html#join" class="closed-cta">Watch Discord ›</a>
+        </div>
+
+        <form id="applyForm" class="is-checking" novalidate>
 
           <!-- ============ I · PLAYER INFORMATION ============ -->
           <div class="form-section">
@@ -557,6 +629,38 @@
 </main>
 
 <script>
+  /* ------------------------------------------------------------------
+   *  APPLICATION GATE CHECK
+   * ------------------------------------------------------------------
+   *  Asks /api/lock whether the form is open. If closed, swap in the
+   *  "Migration is closed" panel. If the endpoint is unreachable (e.g.
+   *  not yet deployed) we fail OPEN so the form stays usable.
+   * ------------------------------------------------------------------ */
+  (async function gateCheck() {
+    const form   = document.getElementById('applyForm');
+    const closed = document.getElementById('closedPanel');
+    function reveal(open) {
+      if (open) {
+        form.classList.remove('is-checking');
+        form.classList.add('is-revealed');
+        closed.classList.remove('is-visible');
+        closed.setAttribute('aria-hidden', 'true');
+      } else {
+        form.classList.remove('is-revealed');
+        form.classList.add('is-checking'); // hidden
+        closed.classList.add('is-visible');
+        closed.setAttribute('aria-hidden', 'false');
+      }
+    }
+    try {
+      const res  = await fetch('/api/lock', { cache: 'no-store' });
+      const data = res.ok ? await res.json() : { open: true };
+      reveal(!!data.open);
+    } catch {
+      reveal(true); // fail-open
+    }
+  })();
+
   /* ------------------------------------------------------------------
    *  SUBMIT TO GOOGLE SHEET (no backend, no API key)
    * ------------------------------------------------------------------

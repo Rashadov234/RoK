@@ -152,6 +152,70 @@
   .sync-btn:hover { background: rgba(201,169,97,0.12); border-color: var(--gold-bright); color: #fff; }
   .sync-btn:disabled { opacity: 0.4; cursor: wait; }
 
+  /* ---------- LOCK CONTROL ---------- */
+  .lock-card {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px; flex-wrap: wrap;
+    padding: 22px 26px;
+    margin-bottom: 28px;
+    background: linear-gradient(180deg, rgba(20,15,10,0.85), rgba(8,6,4,0.92));
+    border: 1px solid rgba(201,169,97,0.25);
+    --accent: rgba(201,169,97,0.55);
+    position: relative;
+    overflow: hidden;
+  }
+  .lock-card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--accent);
+    box-shadow: 0 0 14px var(--accent);
+    transition: background 0.4s, box-shadow 0.4s;
+  }
+  .lock-card[data-state="open"]    { --accent: var(--t-elite, #5dd06a); }
+  .lock-card[data-state="closed"]  { --accent: var(--t-mythic, #e74e3a); }
+  .lock-card[data-state="loading"] { --accent: rgba(201,169,97,0.4); }
+  .lock-card[data-state="error"]   { --accent: var(--t-mythic, #e74e3a); }
+
+  .lock-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .lock-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem; letter-spacing: 0.4em;
+    text-transform: uppercase; color: rgba(244,232,208,0.55);
+  }
+  .lock-state {
+    font-family: 'Cinzel', serif;
+    font-size: 1.35rem; font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+  .lock-meta {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.92rem;
+    color: rgba(244,232,208,0.55);
+    min-height: 1.1em;
+  }
+  .lock-btn {
+    background: rgba(26,20,16,0.55);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    padding: 14px 24px;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
+    flex-shrink: 0;
+    min-width: 200px;
+  }
+  .lock-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    color: #fff;
+    box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .lock-btn:disabled { opacity: 0.45; cursor: wait; }
+
   /* ---------- SUMMARY ---------- */
   .summary {
     display: grid; grid-template-columns: repeat(4, 1fr);
@@ -449,6 +513,18 @@
 
   <section>
     <div class="container">
+
+      <!-- ===== APPLICATION LOCK CONTROL ===== -->
+      <div class="lock-card" id="lockCard" data-state="loading">
+        <div class="lock-info">
+          <div class="lock-eyebrow">Application Gate</div>
+          <div class="lock-state" id="lockState">Checking…</div>
+          <div class="lock-meta" id="lockMeta">&nbsp;</div>
+        </div>
+        <button type="button" class="lock-btn" id="lockBtn" disabled>
+          <span class="lock-btn-text">…</span>
+        </button>
+      </div>
 
       <div class="summary">
         <div class="card total">
@@ -879,6 +955,97 @@
     started = true;
     refresh();
     if (POLL_SECONDS > 0 && SHEET_CSV_URL) setInterval(refresh, POLL_SECONDS * 1000);
+    initLockControl();
+  }
+
+  /* ------------------------------------------------------------------
+   *  APPLICATION LOCK CONTROL
+   * ------------------------------------------------------------------
+   *  Talks to /api/lock. The browser auto-attaches the Basic-Auth
+   *  header (same realm/origin as /admin.html) so no credentials live
+   *  in JS here.
+   * ------------------------------------------------------------------ */
+  const lockCard  = document.getElementById('lockCard');
+  const lockState = document.getElementById('lockState');
+  const lockMeta  = document.getElementById('lockMeta');
+  const lockBtn   = document.getElementById('lockBtn');
+  const lockBtnText = lockBtn && lockBtn.querySelector('.lock-btn-text');
+
+  let currentOpen = null;
+  let lockBusy    = false;
+
+  function fmtAgoShort(iso) {
+    if (!iso) return '';
+    const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+    if (s < 60) return 'just now';
+    const m = Math.floor(s / 60);
+    if (m < 60) return m + 'm ago';
+    const h = Math.floor(m / 60);
+    if (h < 24) return h + 'h ago';
+    return Math.floor(h / 24) + 'd ago';
+  }
+
+  function renderLockState(open, updatedAt) {
+    currentOpen = open;
+    if (lockCard)  lockCard.dataset.state = open ? 'open' : 'closed';
+    if (lockState) lockState.textContent = open ? 'Open — accepting petitions' : 'Closed — no new petitions';
+    if (lockMeta)  lockMeta.textContent  = updatedAt ? 'Last changed ' + fmtAgoShort(updatedAt) : 'Default state — flip the gate to set';
+    if (lockBtnText) lockBtnText.textContent = open ? 'Lock Applications' : 'Unlock Applications';
+    if (lockBtn) lockBtn.disabled = false;
+  }
+  function renderLockError(msg) {
+    if (lockCard)  lockCard.dataset.state = 'error';
+    if (lockState) lockState.textContent  = 'Lock control unavailable';
+    if (lockMeta)  lockMeta.textContent   = msg || 'Could not reach /api/lock.';
+    if (lockBtnText) lockBtnText.textContent = 'Retry';
+    if (lockBtn) lockBtn.disabled = false;
+  }
+
+  async function fetchLockState() {
+    if (!lockCard) return;
+    try {
+      const res = await fetch('/api/lock', { cache: 'no-store', credentials: 'include' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      renderLockState(!!data.open, data.updatedAt);
+    } catch (e) {
+      renderLockError('Endpoint not deployed yet — push your latest commit, then redeploy.');
+    }
+  }
+
+  async function toggleLock() {
+    if (lockBusy || lockCard.dataset.state === 'loading') return;
+    // If we're in error state, retrying = re-fetch.
+    if (lockCard.dataset.state === 'error') { fetchLockState(); return; }
+    if (currentOpen === null) return;
+    lockBusy = true;
+    if (lockBtn) lockBtn.disabled = true;
+    if (lockBtnText) lockBtnText.textContent = 'Saving…';
+    try {
+      const res = await fetch('/api/lock', {
+        method: 'POST',
+        credentials: 'include',
+        cache: 'no-store',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ open: !currentOpen }),
+      });
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error('HTTP ' + res.status + ' ' + text);
+      }
+      const data = await res.json();
+      renderLockState(!!data.open, data.updatedAt);
+    } catch (e) {
+      renderLockError(e.message || 'Failed to update lock state.');
+    } finally {
+      lockBusy = false;
+    }
+  }
+
+  function initLockControl() {
+    if (!lockCard) return;
+    if (lockBtn) lockBtn.addEventListener('click', toggleLock);
+    fetchLockState();
   }
 
   /* ------------------------------------------------------------------
