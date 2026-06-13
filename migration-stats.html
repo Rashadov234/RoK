@@ -644,7 +644,7 @@
       </div>
 
       <div class="cta-row">
-        <a href="index.html#apply" class="btn btn-primary">Open Apllication Form ›</a>
+        <a href="apply.html" class="btn btn-primary">Open Application Form ›</a>
         <a href="index.html#join" class="btn">Open Discord</a>
       </div>
 
@@ -685,8 +685,84 @@
    *  Note: Google caches the published CSV ~5 min. Edits in the sheet will
    *  appear after ~5 min + a page reload. Set POLL_SECONDS > 0 to auto-refetch.
    * ------------------------------------------------------------------ */
-  const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTbKsboeeRbkYbm4lMhwacuMRcJ1DqHY3iS25cOz26wurEoRbrXqmkVDg-ScJUEkZDii-V-iaczG43w/pub?gid=0&single=true&output=csv'; // ← paste your published CSV URL here
+  const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTbKsboeeRbkYbm4lMhwacuMRcJ1DqHY3iS25cOz26wurEoRbrXqmkVDg-ScJUEkZDii-V-iaczG43w/pub?gid=0&single=true&output=csv'; // ← paste your published CSV URL here (Tier / Range / Total = slot capacity)
   const POLL_SECONDS  = 60;  // 0 = no polling; set e.g. 60 to refetch every minute
+
+  /* ------------------------------------------------------------------
+   *  LIVE COUNTS FROM THE APPLICATIONS SHEET
+   * ------------------------------------------------------------------
+   *  This is the SAME published CSV the admin dashboard reads. Each tier's
+   *  Registered / Approved / Rejected (and seats filled) are counted from
+   *  here, so approving / rejecting on admin.html flows straight into these
+   *  stats. The sheet above (SHEET_CSV_URL) still defines the tiers + slot
+   *  totals; this one just supplies the live per-rank counts.
+   *
+   *  Mapping: Registered = everyone who applied (any status). Approved and
+   *  Rejected are subsets of that (the rest are pending). Veteran & Warrior
+   *  applicants are counted under Vanguard (the lowest tier).
+   * ------------------------------------------------------------------ */
+  const APPLICATIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaJ3S77Mq3zqPT9WTUL_wOOIZCWw5wjPgn2TDSoYmJ8alpMzjY5NySLKdFJBYQEX65DnbSvRVW-zA7/pub?gid=2111852039&single=true&output=csv';
+
+  // Veteran & Warrior fold into Vanguard; everything else maps by its own name.
+  function tierOfRank(rank) {
+    const t = (rank || '').trim().toLowerCase();
+    if (t === 'veteran' || t === 'warrior') return 'vanguard';
+    return t;
+  }
+
+  async function loadApplications() {
+    if (!APPLICATIONS_CSV_URL) return null;
+    try {
+      const bust = (APPLICATIONS_CSV_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
+      const res = await fetch(APPLICATIONS_CSV_URL + bust, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return parseCSV(await res.text());
+    } catch (e) {
+      console.warn('[migration-stats] Applications fetch failed:', e);
+      return null;
+    }
+  }
+
+  // Tally applicant rows into per-tier { registered, approved, rejected }.
+  // Registered = everyone who applied (any status). Approved / Rejected are
+  // subsets of that; the remainder are still pending.
+  function aggregateApplications(rows) {
+    const agg = {};
+    rows.forEach(r => {
+      const tier = tierOfRank(r['Migration Rank']);
+      if (!tier) return;
+      if (!agg[tier]) agg[tier] = { registered: 0, approved: 0, rejected: 0 };
+      agg[tier].registered++;
+      const s = (r['Status'] || '').trim().toLowerCase();
+      if (s.startsWith('approv'))                              agg[tier].approved++;
+      else if (s.startsWith('reject') || s.startsWith('deny')) agg[tier].rejected++;
+    });
+    return agg;
+  }
+
+  // Write the live counts onto each tier card (filled seats = approved).
+  function applyApplicationCounts(agg) {
+    document.querySelectorAll('.tier-card').forEach(card => {
+      const nameEl = card.querySelector('.banner-name');
+      if (!nameEl) return;
+      const tier = nameEl.textContent.trim().toLowerCase();
+      const a = agg[tier] || { registered: 0, approved: 0, rejected: 0 };
+
+      const regEl = card.querySelector('.stat-val.registered');
+      const appEl = card.querySelector('.stat-val.approved');
+      const rejEl = card.querySelector('.stat-val.rejected');
+      if (regEl) regEl.textContent = a.registered;
+      if (appEl) appEl.textContent = a.approved;
+      if (rejEl) rejEl.textContent = a.rejected;
+
+      const filledEl = card.querySelector('.filled');
+      const qtyEl    = card.querySelector('.qty');
+      const total    = parseInt(qtyEl && qtyEl.textContent, 10) || 0;
+      if (filledEl && filledEl.firstChild) {
+        filledEl.firstChild.textContent = total > 0 ? Math.min(a.approved, total) : a.approved;
+      }
+    });
+  }
 
   async function loadFromSheet() {
     if (!SHEET_CSV_URL) return false;
@@ -791,14 +867,8 @@
       const filled = parseInt((filledEl.firstChild && filledEl.firstChild.textContent) || '0', 10) || 0;
       const total  = parseInt(qtyEl.textContent, 10) || 0;
       const reg    = parseInt(regEl && regEl.textContent, 10) || 0;
-      let   app    = parseInt(appEl && appEl.textContent, 10) || 0;
+      const app    = parseInt(appEl && appEl.textContent, 10) || 0;
       const rej    = parseInt(rejEl && rejEl.textContent, 10) || 0;
-
-      // Cap Approved at the tier's total slots (Mythic total=2 → Approved max 2)
-      if (appEl && app > total) {
-        app = total;
-        appEl.textContent = app;
-      }
 
       totalSpan.textContent = total;
 
@@ -858,7 +928,9 @@
     refreshing = true;
     if (syncBtn) syncBtn.disabled = true;
     setSyncState('loading', 'Syncing…');
-    const ok = await loadFromSheet();
+    const ok = await loadFromSheet();           // tiers + slot totals (capacity)
+    const apps = await loadApplications();      // live applicant rows
+    if (apps) applyApplicationCounts(aggregateApplications(apps));
     refreshMigrationStats();
     if (SHEET_CSV_URL && !ok) {
       setSyncState('error', 'Sync failed');

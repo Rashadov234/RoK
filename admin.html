@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Admin Dashboard — ERA #84 | Age of Empires Mobile Server</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --void: #07090d;
+    --stone: #1a1410;
+    --parchment: #e8d9b8;
+    --cream: #f4e8d0;
+    --gold: #c9a961;
+    --gold-bright: #f0c95a;
+    --gold-deep: #7a5f2b;
+    --rune: #4dd0ff;
+    --rune-glow: rgba(77, 208, 255, 0.45);
+    --t-mythic: #e74e3a;
+    --t-legend: #e8b53b;
+    --t-elite: #5dd06a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  html, body {
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+    background: #07090d;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(77,208,255,0.05) 0%, transparent 45%),
+      radial-gradient(ellipse at 80% 80%, rgba(201,169,97,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 10% 60%, rgba(139,26,26,0.05) 0%, transparent 55%),
+      linear-gradient(180deg, #050709 0%, #0a0d12 40%, #07090d 100%);
+    transform: translateZ(0);
+  }
+
+  .bg-grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    transform: translateZ(0);
+  }
+
+  /* ---------- LAYOUT ---------- */
+  main { position: relative; z-index: 3; }
+  .container { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+
+  /* ---------- NAV ---------- */
+  nav.topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    padding: 22px 48px; display: flex; justify-content: space-between; align-items: center;
+    background: linear-gradient(180deg, rgba(7,9,13,0.85), transparent);
+    backdrop-filter: blur(2px);
+  }
+  .crest { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+  .crest-icon {
+    width: 36px; height: 36px; border: 1px solid var(--gold);
+    transform: rotate(45deg); position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .crest-icon::before {
+    content: ""; position: absolute; inset: 5px;
+    border: 1px solid var(--rune); box-shadow: 0 0 12px var(--rune-glow);
+  }
+  .crest-icon::after {
+    content: "E"; position: absolute;
+    font-family: 'Cinzel', serif; font-weight: 900;
+    color: var(--gold-bright); transform: rotate(-45deg); font-size: 0.85rem;
+  }
+  .crest-text {
+    font-family: 'Cinzel', serif; font-size: 0.78rem;
+    letter-spacing: 0.42em; color: var(--parchment); text-transform: uppercase;
+  }
+  .crest-text span { color: var(--gold-bright); }
+  .back-link {
+    font-family: 'Cinzel', serif; font-size: 0.72rem;
+    letter-spacing: 0.35em; text-transform: uppercase;
+    color: var(--parchment); text-decoration: none;
+    display: flex; align-items: center; gap: 10px; transition: color 0.3s;
+  }
+  .back-link:hover { color: var(--gold-bright); }
+  .back-link .arr { transition: transform 0.3s; }
+  .back-link:hover .arr { transform: translateX(-4px); }
+
+  /* ---------- PAGE HEADER ---------- */
+  .page-head { padding: 150px 0 44px; }
+  .eyebrow {
+    display: flex; align-items: center; gap: 18px;
+    margin-bottom: 22px;
+    font-family: 'Cinzel', serif; font-size: 0.7rem;
+    letter-spacing: 0.45em; color: var(--gold); text-transform: uppercase;
+  }
+  .eyebrow::before { content: ""; width: 60px; height: 1px; background: var(--gold); }
+  .page-head h1 {
+    font-family: 'Cinzel', serif; font-weight: 900;
+    font-size: clamp(2.4rem, 5.5vw, 4.4rem);
+    line-height: 0.96; color: var(--cream);
+    text-shadow: 0 4px 40px rgba(0,0,0,0.7);
+  }
+  .page-head h1 em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-weight: 500; color: var(--gold-bright);
+  }
+  .page-head .lede {
+    margin-top: 22px; max-width: 640px;
+    color: rgba(244,232,208,0.72); font-weight: 300; line-height: 1.65; font-size: 1.02rem;
+  }
+
+  /* ---------- SYNC STATUS ---------- */
+  .sync-status {
+    display: inline-flex; align-items: center; gap: 12px;
+    margin-top: 22px; padding: 8px 14px;
+    background: rgba(20,15,10,0.55);
+    border: 1px solid rgba(201,169,97,0.22);
+    font-family: 'Cinzel', serif; font-size: 0.6rem;
+    letter-spacing: 0.34em; text-transform: uppercase; color: rgba(244,232,208,0.6);
+  }
+  .sync-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--rune); box-shadow: 0 0 10px var(--rune);
+    animation: sync-pulse 1.8s ease-in-out infinite;
+  }
+  .sync-status.is-loading .sync-dot { background: var(--gold-bright); box-shadow: 0 0 12px var(--gold-bright); animation-duration: 0.9s; }
+  .sync-status.is-error .sync-dot { background: var(--t-mythic); box-shadow: 0 0 10px var(--t-mythic); animation: none; }
+  @keyframes sync-pulse { 0%,100% { opacity: 0.5; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.1); } }
+  .sync-btn {
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--gold) 50%, transparent);
+    color: var(--gold-bright);
+    font-family: 'Cinzel', serif; font-size: 0.58rem;
+    letter-spacing: 0.32em; text-transform: uppercase;
+    padding: 5px 10px; cursor: pointer; transition: background 0.3s, border-color 0.3s, color 0.3s;
+  }
+  .sync-btn:hover { background: rgba(201,169,97,0.12); border-color: var(--gold-bright); color: #fff; }
+  .sync-btn:disabled { opacity: 0.4; cursor: wait; }
+
+  /* ---------- SUMMARY ---------- */
+  .summary {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-bottom: 30px;
+  }
+  .summary .card {
+    padding: 22px 24px;
+    background: linear-gradient(180deg, rgba(20,15,10,0.78), rgba(8,6,4,0.85));
+    border: 1px solid rgba(201,169,97,0.22);
+    --accent: var(--gold-bright); position: relative; overflow: hidden;
+  }
+  .summary .card::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px; background: var(--accent);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+  .summary .lbl {
+    font-family: 'Cinzel', serif; font-size: 0.64rem;
+    letter-spacing: 0.4em; text-transform: uppercase;
+    color: rgba(244,232,208,0.55); margin-bottom: 10px;
+  }
+  .summary .num { font-family: 'Cinzel', serif; font-size: 2.1rem; font-weight: 700; color: var(--accent); line-height: 1; }
+  .summary .card.total     { --accent: var(--gold-bright); }
+  .summary .card.pending   { --accent: var(--rune); }
+  .summary .card.approved  { --accent: var(--t-elite); }
+  .summary .card.rejected  { --accent: var(--t-mythic); }
+
+  /* ---------- TOOLBAR ---------- */
+  .toolbar {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .toolbar .search {
+    flex: 1 1 240px; min-width: 200px;
+    background: rgba(8,6,4,0.6);
+    border: 1px solid rgba(201,169,97,0.28);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 300;
+    padding: 11px 15px; transition: border-color 0.3s;
+  }
+  .toolbar .search:focus { outline: none; border-color: var(--gold-bright); }
+  .toolbar .search::placeholder { color: rgba(244,232,208,0.35); }
+  .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    font-family: 'Cinzel', serif; font-size: 0.58rem;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    padding: 9px 14px; cursor: pointer;
+    background: transparent; color: rgba(244,232,208,0.6);
+    border: 1px solid rgba(201,169,97,0.25); transition: all 0.25s;
+  }
+  .chip:hover { color: var(--gold-bright); border-color: var(--gold); }
+  .chip.active { background: rgba(201,169,97,0.14); color: var(--gold-bright); border-color: var(--gold-bright); }
+  .rank-filter {
+    appearance: none;
+    font-family: 'Cinzel', serif; font-size: 0.58rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(244,232,208,0.75); cursor: pointer;
+    background: rgba(8,6,4,0.6);
+    border: 1px solid rgba(201,169,97,0.25);
+    padding: 9px 34px 9px 14px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%23c9a961' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat; background-position: right 13px center;
+    transition: border-color 0.25s, color 0.25s;
+  }
+  .rank-filter:hover { border-color: var(--gold); color: var(--gold-bright); }
+  .rank-filter:focus { outline: none; border-color: var(--gold-bright); }
+  .rank-filter.active { border-color: var(--gold-bright); color: var(--gold-bright); background-color: rgba(201,169,97,0.14); }
+  .rank-filter option { background: #0a0d12; color: var(--cream); letter-spacing: normal; }
+
+  /* ---------- TABLE ---------- */
+  .table-wrap {
+    border: 1px solid rgba(201,169,97,0.22);
+    background: linear-gradient(180deg, rgba(20,15,10,0.55), rgba(8,6,4,0.7));
+    overflow-x: auto; margin-bottom: 70px;
+  }
+  table.apps { width: 100%; border-collapse: collapse; min-width: 1320px; }
+  table.apps thead th {
+    font-family: 'Cinzel', serif; font-size: 0.6rem;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--gold); text-align: left;
+    padding: 16px 16px; border-bottom: 1px solid rgba(201,169,97,0.3);
+    white-space: nowrap; background: rgba(8,6,4,0.5);
+    position: sticky; top: 0;
+  }
+  table.apps tbody td {
+    padding: 15px 16px; font-size: 0.9rem; font-weight: 300;
+    color: rgba(244,232,208,0.85); vertical-align: top;
+    border-bottom: 1px solid rgba(201,169,97,0.1);
+  }
+  table.apps tbody tr:hover { background: rgba(201,169,97,0.05); }
+  td.c-name { font-family: 'Cinzel', serif; font-weight: 600; color: var(--cream); letter-spacing: 0.02em; white-space: nowrap; }
+  td.c-discord { font-family: 'Inter', sans-serif; color: var(--rune); white-space: nowrap; }
+  td.c-power { font-family: 'Cinzel', serif; font-weight: 600; color: var(--gold-bright); white-space: nowrap; }
+  td.c-when { color: rgba(244,232,208,0.5); font-size: 0.82rem; white-space: nowrap; }
+  td.c-msg { max-width: 320px; line-height: 1.5; }
+
+  .tier-pill {
+    display: inline-block; font-family: 'Cinzel', serif;
+    font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 4px 10px; border: 1px solid color-mix(in srgb, var(--pill,var(--gold)) 50%, transparent);
+    color: var(--pill, var(--gold-bright)); white-space: nowrap;
+  }
+  .tier-pill.mythic   { --pill: var(--t-mythic); }
+  .tier-pill.legend   { --pill: var(--t-legend); }
+  .tier-pill.hero     { --pill: #a96fff; }
+  .tier-pill.master   { --pill: var(--rune); }
+  .tier-pill.elite    { --pill: var(--t-elite); }
+  .tier-pill.vanguard { --pill: #c4ccd3; }
+  .tier-pill.veteran  { --pill: #c8924b; }
+  .tier-pill.warrior  { --pill: #8fa0b0; }
+
+  /* availability slots cell */
+  .slots { display: flex; flex-direction: column; gap: 3px; white-space: nowrap; }
+  .slots span { font-size: 0.78rem; color: rgba(244,232,208,0.7); }
+  .slots b { font-family: 'Cinzel', serif; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.05em; color: var(--gold); margin-right: 7px; }
+  .play-pill {
+    display: inline-block; font-family: 'Cinzel', serif;
+    font-size: 0.56rem; letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 4px 10px; white-space: nowrap;
+    border: 1px solid rgba(201,169,97,0.4); color: var(--gold-bright);
+  }
+
+  .status-pill {
+    display: inline-block; font-family: 'Cinzel', serif;
+    font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 5px 12px; white-space: nowrap;
+    border: 1px solid color-mix(in srgb, var(--sc,var(--rune)) 55%, transparent);
+    color: var(--sc, var(--rune));
+    background: color-mix(in srgb, var(--sc,var(--rune)) 10%, transparent);
+  }
+  .status-pill.approved { --sc: var(--t-elite); }
+  .status-pill.rejected { --sc: var(--t-mythic); }
+  .status-pill.pending  { --sc: var(--rune); }
+
+  /* ---------- JUDGE BUTTONS ---------- */
+  td.c-judge { white-space: nowrap; }
+  .judge { display: inline-flex; gap: 6px; }
+  .jbtn {
+    width: 30px; height: 30px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(201,169,97,0.3);
+    background: rgba(8,6,4,0.5);
+    color: rgba(244,232,208,0.55);
+    font-size: 0.85rem; line-height: 1; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .jbtn:hover { border-color: var(--gold-bright); color: var(--gold-bright); }
+  .jbtn.approve.active { background: color-mix(in srgb, var(--t-elite) 18%, transparent); border-color: var(--t-elite); color: var(--t-elite); }
+  .jbtn.reject.active  { background: color-mix(in srgb, var(--t-mythic) 18%, transparent); border-color: var(--t-mythic); color: var(--t-mythic); }
+  .jbtn.reset.active   { background: color-mix(in srgb, var(--rune) 18%, transparent); border-color: var(--rune); color: var(--rune); }
+  .no-id { color: rgba(244,232,208,0.3); }
+
+  /* ---------- PASSWORD GATE ---------- */
+  .gate {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(77,208,255,0.05) 0%, transparent 45%),
+      linear-gradient(180deg, #050709 0%, #0a0d12 45%, #07090d 100%);
+  }
+  .gate.hidden { display: none; }
+  .gate-card {
+    width: 100%; max-width: 420px; text-align: center;
+    border: 1px solid rgba(201,169,97,0.3);
+    background: linear-gradient(180deg, rgba(15,11,7,0.92), rgba(8,6,4,0.95));
+    padding: 48px 40px;
+  }
+  .gate-seal {
+    width: 70px; height: 70px; margin: 0 auto 26px;
+    border: 1px solid var(--gold); border-radius: 50%;
+    position: relative; display: flex; align-items: center; justify-content: center;
+  }
+  .gate-seal::before {
+    content: ""; position: absolute; inset: 6px;
+    border: 1px solid var(--rune); border-radius: 50%;
+    box-shadow: inset 0 0 15px var(--rune-glow);
+  }
+  .gate-seal svg { width: 26px; height: 26px; stroke: var(--gold-bright); fill: none; stroke-width: 1.6; }
+  .gate-card .eyebrow { justify-content: center; }
+  .gate-card h1 {
+    font-family: 'Cinzel', serif; font-weight: 900;
+    font-size: 1.7rem; color: var(--cream); margin-bottom: 10px;
+  }
+  .gate-card p {
+    color: rgba(244,232,208,0.6); font-weight: 300;
+    font-size: 0.92rem; line-height: 1.55; margin-bottom: 26px;
+  }
+  .gate-form { display: flex; flex-direction: column; gap: 14px; }
+  .gate-form input {
+    width: 100%; text-align: center;
+    background: rgba(8,6,4,0.6);
+    border: 1px solid rgba(201,169,97,0.3);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif; font-size: 1rem;
+    letter-spacing: 0.2em; padding: 14px 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .gate-form input:focus {
+    outline: none; border-color: var(--gold-bright);
+    box-shadow: 0 0 0 1px rgba(240,201,90,0.25), 0 0 20px rgba(201,169,97,0.15);
+  }
+  .gate-form button {
+    padding: 14px 22px;
+    font-family: 'Cinzel', serif; font-size: 0.72rem;
+    letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--gold-bright);
+    border: 1px solid var(--gold-bright);
+    background: linear-gradient(180deg, rgba(201,169,97,0.15), rgba(201,169,97,0.05));
+    cursor: pointer; transition: all 0.3s;
+  }
+  .gate-form button:hover { color: #fff; box-shadow: 0 0 24px rgba(201,169,97,0.25); }
+  .gate-err {
+    min-height: 18px; font-size: 0.85rem; color: #f0bcb4;
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+  }
+
+  .empty {
+    padding: 60px 20px; text-align: center;
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    color: rgba(244,232,208,0.45); font-size: 1.1rem;
+  }
+  .note {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    color: rgba(244,232,208,0.4); font-size: 0.92rem; margin: -50px 0 70px;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer { padding: 50px 0 36px; border-top: 1px solid rgba(201,169,97,0.18); }
+  .foot-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+  footer .copy { font-family: 'Cormorant Garamond', serif; font-style: italic; color: rgba(244,232,208,0.4); font-size: 0.95rem; }
+  footer .signature { font-family: 'Cinzel', serif; font-size: 0.68rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold); }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 900px) {
+    nav.topbar { padding: 16px 22px; }
+    .container { padding: 0 22px; }
+    .page-head { padding: 120px 0 34px; }
+    .summary { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .summary { gap: 10px; }
+    .summary .card { padding: 16px; }
+    .summary .num { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- STATIC TEXTURE -->
+<div class="bg-grain"></div>
+
+<!-- PASSWORD GATE -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-seal">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    </div>
+    <div class="eyebrow">The Inner Sanctum</div>
+    <h1>Sealed Gate</h1>
+    <p>This ledger is for alliance leads only. Speak the watchword to enter.</p>
+    <form class="gate-form" id="gateForm">
+      <input type="password" id="gatePass" placeholder="Watchword" autocomplete="current-password" autofocus />
+      <button type="submit">Enter ›</button>
+      <div class="gate-err" id="gateErr"></div>
+    </form>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="topbar">
+  <a href="index.html" class="crest">
+    <div class="crest-icon"></div>
+    <div class="crest-text">Era <span>#84</span></div>
+  </a>
+  <a href="index.html" class="back-link"><span class="arr">‹</span> Return</a>
+</nav>
+
+<main>
+  <section class="page-head">
+    <div class="container">
+      <div class="eyebrow">The Inner Sanctum</div>
+      <h1>Admin <em>Dashboard</em></h1>
+      <p class="lede">
+        Every petition filed to the realm, gathered into one ledger. Review, search, and judge —
+        mark each applicant's fate in the sheet and it will surface here.
+      </p>
+      <div class="sync-status" id="syncStatus" aria-live="polite">
+        <span class="sync-dot"></span>
+        <span class="sync-text">Syncing…</span>
+        <button type="button" class="sync-btn" id="syncBtn" aria-label="Refresh now">Sync Now</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+
+      <div class="summary">
+        <div class="card total">
+          <div class="lbl">Total Petitions</div>
+          <div class="num" id="sumTotal">—</div>
+        </div>
+        <div class="card pending">
+          <div class="lbl">Pending</div>
+          <div class="num" id="sumPending">—</div>
+        </div>
+        <div class="card approved">
+          <div class="lbl">Approved</div>
+          <div class="num" id="sumApproved">—</div>
+        </div>
+        <div class="card rejected">
+          <div class="lbl">Rejected</div>
+          <div class="num" id="sumRejected">—</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" class="search" id="search" placeholder="Search name, kingdom, discord, message…" autocomplete="off" />
+        <div class="filter-chips" id="filters">
+          <button class="chip active" data-status="all">All</button>
+          <button class="chip" data-status="pending">Pending</button>
+          <button class="chip" data-status="approved">Approved</button>
+          <button class="chip" data-status="rejected">Rejected</button>
+        </div>
+        <select class="rank-filter" id="rankFilter" aria-label="Filter by rank">
+          <option value="all">All Ranks</option>
+          <option value="mythic">Mythic</option>
+          <option value="legend">Legend</option>
+          <option value="hero">Hero</option>
+          <option value="master">Master</option>
+          <option value="elite">Elite</option>
+          <option value="vanguard">Vanguard</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table class="apps">
+          <thead>
+            <tr>
+              <th>Governor</th>
+              <th>Discord</th>
+              <th>Era</th>
+              <th>Power</th>
+              <th>Merits</th>
+              <th>Rank</th>
+              <th>VIP</th>
+              <th>Timezone</th>
+              <th>Playstyle</th>
+              <th>PvP Slots</th>
+              <th>VC</th>
+              <th>Notes</th>
+              <th>Status</th>
+              <th>Filed</th>
+              <th>Judge</th>
+            </tr>
+          </thead>
+          <tbody id="appsBody">
+            <tr><td colspan="15" class="empty">Loading petitions…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">
+        To approve or reject an applicant, set the <strong>Status</strong> column in the Google Sheet to
+        “Approved” or “Rejected”. Changes appear here on the next sync (Google caches the CSV ~5&nbsp;min).
+      </p>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="container foot-inner">
+      <div class="copy">Forged under stormlight. — ERA #84</div>
+      <div class="signature">Age of Empires Mobile · ERA #84 server</div>
+    </div>
+  </footer>
+</main>
+
+<script>
+  /* ------------------------------------------------------------------
+   *  READS APPLICATIONS FROM YOUR PUBLISHED GOOGLE SHEET (CSV)
+   * ------------------------------------------------------------------
+   *  These are the petitions submitted via apply.html (which writes
+   *  rows to the same sheet through an Apps Script Web App).
+   *
+   *  SETUP
+   *  -----
+   *  1. In the Google Sheet that collects applications:
+   *       File → Share → Publish to web.
+   *  2. "Link" tab → pick the "Applications" sheet → choose
+   *       "Comma-separated values (.csv)" → Publish.
+   *  3. Copy the URL (looks like
+   *       https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?gid=0&single=true&output=csv )
+   *     and paste it as SHEET_CSV_URL below.
+   *
+   *  Expected header row (any order; created automatically by the Apps
+   *  Script in apply.html):
+   *    Timestamp | Ingame Name | Discord | Era | Timezone | VIP Level |
+   *    Power | Merits | Migration Rank | Playstyle |
+   *    01 UTC | 04 UTC | 11 UTC | 19 UTC | Discord VC | Extra | Status
+   *
+   *  Status values: "Pending" (default), "Approved", "Rejected".
+   * ------------------------------------------------------------------ */
+  const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaJ3S77Mq3zqPT9WTUL_wOOIZCWw5wjPgn2TDSoYmJ8alpMzjY5NySLKdFJBYQEX65DnbSvRVW-zA7/pub?gid=2111852039&single=true&output=csv'; // ← paste your published Applications CSV URL here
+  const SCRIPT_URL    = 'https://script.google.com/macros/s/AKfycby2pYYbKtIEfZjvbgiX8LMRbx0lZbcnEABFpl9vlwG2QAUtDhtdFcAIOg5n2_uHUssTEw/exec'; // ← paste the SAME Apps Script Web App /exec URL used by apply.html
+  const JUDGE_TOKEN   = 'era84-kraken-tide-9471'; // ← must match JUDGE_TOKEN in the Apps Script
+  const POLL_SECONDS  = 90;  // 0 = no polling
+
+  let allRows = [];
+  let activeStatus = 'all';
+  let activeRank = 'all';
+  let query = '';
+
+  // Recent judgments kept locally so a status change shows instantly and
+  // survives reloads until the published CSV (cached ~5 min) catches up.
+  let overrides = {};
+  try { overrides = JSON.parse(localStorage.getItem('e84_status_overrides') || '{}'); } catch (e) { overrides = {}; }
+  function saveOverrides() {
+    try { localStorage.setItem('e84_status_overrides', JSON.stringify(overrides)); } catch (e) {}
+  }
+
+  // ---- CSV parser (handles quoted fields, embedded commas/newlines) ----
+  function parseCSV(csv) {
+    const text = csv.replace(/\r/g, '');
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (inQuotes) {
+        if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+        else if (c === '"') inQuotes = false;
+        else field += c;
+      } else {
+        if (c === '"') inQuotes = true;
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+        else field += c;
+      }
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    if (!rows.length) return [];
+    const headers = rows[0].map(h => h.trim().toLowerCase());
+    return rows.slice(1)
+      .filter(r => r.some(c => c && c.trim()))
+      .map(r => {
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = (r[i] || '').trim());
+        return obj;
+      });
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g,
+      c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function statusOf(r) {
+    const s = (r.status || '').toLowerCase();
+    if (s.startsWith('approv')) return 'approved';
+    if (s.startsWith('reject') || s.startsWith('deny') || s.startsWith('denied')) return 'rejected';
+    return 'pending';
+  }
+
+  function fmtWhen(v) {
+    if (!v) return '';
+    const d = new Date(v);
+    if (isNaN(d)) return esc(v);
+    return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function fmtNum(v) {
+    if (v == null || v === '') return '';
+    const n = Number(String(v).replace(/[^0-9.]/g, ''));
+    return isNaN(n) ? esc(v) : n.toLocaleString();
+  }
+
+  function slotsCell(r) {
+    const slots = [['01', r['01 utc']], ['04', r['04 utc']], ['11', r['11 utc']], ['19', r['19 utc']]]
+      .filter(([, v]) => v)
+      .map(([h, v]) => `<span><b>${h}</b>${esc(v)}</span>`).join('');
+    return slots ? `<div class="slots">${slots}</div>` : '';
+  }
+
+  function render() {
+    const body = document.getElementById('appsBody');
+    const rows = allRows.filter(r => {
+      if (activeStatus !== 'all' && statusOf(r) !== activeStatus) return false;
+      if (activeRank !== 'all' && (r['migration rank'] || '').toLowerCase() !== activeRank) return false;
+      if (query) {
+        const hay = [r['ingame name'], r.discord, r.era, r.timezone, r['vip level'],
+                     r.power, r.merits, r['migration rank'], r.playstyle, r.extra]
+          .join(' ').toLowerCase();
+        if (!hay.includes(query)) return false;
+      }
+      return true;
+    });
+
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="15" class="empty">' +
+        (allRows.length ? 'No petitions match your filters.' : 'No petitions have been filed yet.') +
+        '</td></tr>';
+      return;
+    }
+
+    body.innerHTML = rows.map(r => {
+      const st = statusOf(r);
+      const rank = (r['migration rank'] || '').toLowerCase();
+      const id = r.id || '';
+      const judge = id
+        ? `<div class="judge">
+             <button class="jbtn approve${st === 'approved' ? ' active' : ''}" data-id="${esc(id)}" data-status="Approved" title="Approve">✓</button>
+             <button class="jbtn reject${st === 'rejected' ? ' active' : ''}" data-id="${esc(id)}" data-status="Rejected" title="Reject">✕</button>
+             <button class="jbtn reset${st === 'pending' ? ' active' : ''}" data-id="${esc(id)}" data-status="Pending" title="Reset to pending">↺</button>
+           </div>`
+        : '<span class="no-id" title="This row has no ID column — re-submit via the form to enable judging">—</span>';
+      return `
+        <tr>
+          <td class="c-name">${esc(r['ingame name'])}</td>
+          <td class="c-discord">${esc(r.discord)}</td>
+          <td>${esc(r.era)}</td>
+          <td class="c-power">${fmtNum(r.power)}</td>
+          <td class="c-power">${fmtNum(r.merits)}</td>
+          <td>${r['migration rank'] ? `<span class="tier-pill ${esc(rank)}">${esc(r['migration rank'])}</span>` : ''}</td>
+          <td>${esc(r['vip level'])}</td>
+          <td>${esc(r.timezone)}</td>
+          <td>${r.playstyle ? `<span class="play-pill">${esc(r.playstyle)}</span>` : ''}</td>
+          <td>${slotsCell(r)}</td>
+          <td>${esc(r['discord vc'])}</td>
+          <td class="c-msg">${esc(r.extra)}</td>
+          <td><span class="status-pill ${st}">${st}</span></td>
+          <td class="c-when">${fmtWhen(r.timestamp)}</td>
+          <td class="c-judge">${judge}</td>
+        </tr>`;
+    }).join('');
+  }
+
+  // Apply any locally-stored judgments onto freshly-fetched rows, and drop
+  // overrides the published CSV has already caught up to.
+  function applyOverrides() {
+    allRows.forEach(r => {
+      const id = r.id;
+      if (id && overrides[id] != null) {
+        if ((r.status || '').toLowerCase() === overrides[id].toLowerCase()) {
+          delete overrides[id];          // CSV now matches — override no longer needed
+        } else {
+          r.status = overrides[id];       // show the pending judgment
+        }
+      }
+    });
+    saveOverrides();
+  }
+
+  // Small JSONP helper — lets us READ the Apps Script's response. A plain
+  // cross-origin fetch can't, because Apps Script sends no CORS headers; a
+  // <script> tag isn't bound by that, so the script returns a call to our
+  // callback with the result as its argument.
+  function jsonp(url, params, timeoutMs = 12000) {
+    return new Promise((resolve, reject) => {
+      const cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+      const qs = new URLSearchParams(Object.assign({}, params, { callback: cb })).toString();
+      const script = document.createElement('script');
+      let done = false;
+      const cleanup = () => { delete window[cb]; script.remove(); clearTimeout(timer); };
+      const finish = (fn, arg) => { if (!done) { done = true; cleanup(); fn(arg); } };
+      const timer = setTimeout(() => finish(reject, new Error('timeout')), timeoutMs);
+      window[cb] = (data) => finish(resolve, data);
+      script.onerror = () => finish(reject, new Error('network'));
+      script.src = url + (url.includes('?') ? '&' : '?') + qs;
+      document.body.appendChild(script);
+    });
+  }
+
+  // Send a status change and CONFIRM it landed (revert the UI if it didn't).
+  function judge(id, status) {
+    if (!SCRIPT_URL) { setSyncState('error', 'No SCRIPT_URL set'); return; }
+
+    const row          = allRows.find(r => r.id === id);
+    const prevStatus   = row ? row.status : null;
+    const hadOverride  = Object.prototype.hasOwnProperty.call(overrides, id);
+    const prevOverride = overrides[id];
+
+    // Optimistic update — flip the pill immediately…
+    if (row) row.status = status;
+    overrides[id] = status;
+    saveOverrides();
+    refreshSummary();
+    render();
+    setSyncState('loading', 'Saving…');
+
+    // …then confirm with the sheet, and roll back if it didn't take.
+    jsonp(SCRIPT_URL, { action: 'setStatus', id, status, token: JUDGE_TOKEN })
+      .then(res => {
+        if (res && res.result === 'ok') {
+          lastSyncAt = Date.now();
+          setSyncState('idle', 'Saved · ' + status);
+        } else {
+          revertJudge(id, row, prevStatus, hadOverride, prevOverride);
+          setSyncState('error',
+            res && res.result === 'denied'   ? 'Rejected: wrong token' :
+            res && res.result === 'notfound' ? 'Row not found in sheet' :
+            'Save failed');
+        }
+      })
+      .catch(() => {
+        revertJudge(id, row, prevStatus, hadOverride, prevOverride);
+        setSyncState('error', 'Save failed — check connection');
+      });
+  }
+
+  function revertJudge(id, row, prevStatus, hadOverride, prevOverride) {
+    if (row) row.status = prevStatus;
+    if (hadOverride) overrides[id] = prevOverride; else delete overrides[id];
+    saveOverrides();
+    refreshSummary();
+    render();
+  }
+
+  function refreshSummary() {
+    const counts = { total: allRows.length, pending: 0, approved: 0, rejected: 0 };
+    allRows.forEach(r => { counts[statusOf(r)]++; });
+    document.getElementById('sumTotal').textContent    = counts.total;
+    document.getElementById('sumPending').textContent  = counts.pending;
+    document.getElementById('sumApproved').textContent = counts.approved;
+    document.getElementById('sumRejected').textContent = counts.rejected;
+  }
+
+  // ----- Sync status indicator -----
+  const syncStatus = document.getElementById('syncStatus');
+  const syncBtn    = document.getElementById('syncBtn');
+  const syncText   = syncStatus && syncStatus.querySelector('.sync-text');
+  let lastSyncAt   = null;
+
+  function setSyncState(state, text) {
+    syncStatus.classList.toggle('is-loading', state === 'loading');
+    syncStatus.classList.toggle('is-error',   state === 'error');
+    if (syncText && text) syncText.textContent = text;
+  }
+  function fmtAgo(ms) {
+    const s = Math.floor((Date.now() - ms) / 1000);
+    if (s < 5)  return 'just now';
+    if (s < 60) return s + 's ago';
+    const m = Math.floor(s / 60);
+    if (m < 60) return m + 'm ago';
+    return Math.floor(m / 60) + 'h ago';
+  }
+  setInterval(() => {
+    if (lastSyncAt && !syncStatus.classList.contains('is-loading') && !syncStatus.classList.contains('is-error')) {
+      setSyncState('idle', 'Updated ' + fmtAgo(lastSyncAt));
+    }
+  }, 1000);
+
+  // ----- Fetch + render -----
+  let busy = false;
+  async function refresh() {
+    if (busy) return;
+    busy = true;
+    if (syncBtn) syncBtn.disabled = true;
+    setSyncState('loading', 'Syncing…');
+
+    if (!SHEET_CSV_URL) {
+      setSyncState('error', 'Not connected');
+      document.getElementById('appsBody').innerHTML =
+        '<tr><td colspan="15" class="empty">Set SHEET_CSV_URL in admin.html to load applications (see setup notes in the source).</td></tr>';
+      busy = false; if (syncBtn) syncBtn.disabled = false;
+      return;
+    }
+
+    try {
+      const bust = (SHEET_CSV_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
+      const res = await fetch(SHEET_CSV_URL + bust, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      allRows = parseCSV(await res.text());
+      // Newest first if a timestamp column exists
+      allRows.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+      applyOverrides();
+      refreshSummary();
+      render();
+      lastSyncAt = Date.now();
+      setSyncState('idle', 'Updated just now');
+    } catch (e) {
+      console.warn('[admin] fetch failed:', e);
+      setSyncState('error', 'Sync failed');
+      if (!allRows.length) {
+        document.getElementById('appsBody').innerHTML =
+          '<tr><td colspan="15" class="empty">Could not load the ledger. Check SHEET_CSV_URL and that the sheet is published to the web.</td></tr>';
+      }
+    } finally {
+      busy = false;
+      if (syncBtn) syncBtn.disabled = false;
+    }
+  }
+
+  // ----- Wire up controls -----
+  document.getElementById('search').addEventListener('input', (e) => {
+    query = e.target.value.trim().toLowerCase();
+    render();
+  });
+  document.getElementById('filters').addEventListener('click', (e) => {
+    const btn = e.target.closest('.chip');
+    if (!btn) return;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    activeStatus = btn.dataset.status;
+    render();
+  });
+  document.getElementById('rankFilter').addEventListener('change', (e) => {
+    activeRank = e.target.value;
+    e.target.classList.toggle('active', activeRank !== 'all');
+    render();
+  });
+  if (syncBtn) syncBtn.addEventListener('click', refresh);
+
+  // Judge buttons (event-delegated)
+  document.getElementById('appsBody').addEventListener('click', (e) => {
+    const btn = e.target.closest('.jbtn');
+    if (!btn) return;
+    judge(btn.dataset.id, btn.dataset.status);
+  });
+
+  // ----- Dashboard startup (runs only after the gate is unlocked) -----
+  let started = false;
+  function startDashboard() {
+    if (started) return;
+    started = true;
+    refresh();
+    if (POLL_SECONDS > 0 && SHEET_CSV_URL) setInterval(refresh, POLL_SECONDS * 1000);
+  }
+
+  /* ------------------------------------------------------------------
+   *  PASSWORD GATE  (client-side — a deterrent, not real security)
+   * ------------------------------------------------------------------
+   *  The page is hidden until the correct watchword is entered. We
+   *  compare a SHA-256 hash so the password isn't sitting in the source
+   *  in plain text — but note anyone who reads this file can still
+   *  bypass the gate. For true protection the page must be served from
+   *  behind real auth (a login-protected host).
+   *
+   *  DEFAULT WATCHWORD:  era84
+   *
+   *  To change it: open this page, open the browser console (F12), run
+   *      await adminHash('your-new-password')
+   *  copy the printed hash, and paste it as ADMIN_PASS_HASH below.
+   * ------------------------------------------------------------------ */
+  const ADMIN_PASS_HASH = 'f7a3259e333544125f3dedd578a6b18d4fc78b2990d215d2bee7f0a671a75bfb';
+
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  window.adminHash = sha256; // console helper for generating a new hash
+
+  const gate     = document.getElementById('gate');
+  const gateForm = document.getElementById('gateForm');
+  const gatePass = document.getElementById('gatePass');
+  const gateErr  = document.getElementById('gateErr');
+
+  function unlock() {
+    gate.classList.add('hidden');
+    startDashboard();
+  }
+
+  // Stay unlocked for the rest of the browser session
+  if (sessionStorage.getItem('e84_admin_ok') === '1') {
+    unlock();
+  }
+
+  gateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    gateErr.textContent = '';
+    let hash = '';
+    try { hash = await sha256(gatePass.value); }
+    catch (err) { gateErr.textContent = 'This browser blocks the lock (needs https or localhost).'; return; }
+    if (hash === ADMIN_PASS_HASH) {
+      sessionStorage.setItem('e84_admin_ok', '1');
+      unlock();
+    } else {
+      gateErr.textContent = 'The gate stays shut. Wrong watchword.';
+      gatePass.value = '';
+      gatePass.focus();
+    }
+  });
+</script>
+
+</body>
+</html>
