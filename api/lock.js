@@ -1,8 +1,8 @@
 /* =====================================================================
  *  /api/lock  —  application form open/closed state
  * =====================================================================
- *  GET  → returns { open: boolean }                                 (public)
- *  POST → sets    { open: boolean }                                (admin)
+ *  GET  → returns { open: boolean, updatedAt: string|null }     (public)
+ *  POST → sets    { open: boolean }                              (admin)
  *
  *  State is persisted as a single JSON file in Vercel Blob, so it
  *  survives deploys and is shared by every visitor.
@@ -37,7 +37,7 @@ async function readState() {
     return { open: !!data.open, updatedAt: data.updatedAt || null };
   } catch (e) {
     // First boot (file doesn't exist) or Blob misconfigured → default open.
-    return { open: true, updatedAt: null, _note: 'default (no state stored yet)' };
+    return { open: true, updatedAt: null };
   }
 }
 
@@ -55,11 +55,15 @@ async function writeState(next) {
   });
 }
 
-function isAuthed(request) {
-  const auth = request.headers.get('authorization') || '';
+function isAuthed(req) {
+  const auth = req.headers['authorization'] || '';
   if (!auth.startsWith('Basic ')) return false;
   let decoded = '';
-  try { decoded = atob(auth.slice(6)); } catch { return false; }
+  try {
+    decoded = Buffer.from(auth.slice(6), 'base64').toString('utf8');
+  } catch {
+    return false;
+  }
   const i = decoded.indexOf(':');
   if (i < 0) return false;
   const user = decoded.slice(0, i);
@@ -69,42 +73,31 @@ function isAuthed(request) {
   return PASS.length > 0 && user === USER && pass === PASS;
 }
 
-const json = (body, status = 200, extra = {}) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      'content-type': 'application/json; charset=utf-8',
-      'cache-control': 'no-store, max-age=0',
-      ...extra,
-    },
-  });
+export default async function handler(req, res) {
+  // Always disable caching on this endpoint
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
 
-export default async function handler(request) {
-  if (request.method === 'GET') {
+  if (req.method === 'GET') {
     const state = await readState();
-    return json({ open: state.open, updatedAt: state.updatedAt });
+    return res.status(200).json({ open: state.open, updatedAt: state.updatedAt });
   }
 
-  if (request.method === 'POST') {
-    if (!isAuthed(request)) {
-      return new Response('Unauthorized', {
-        status: 401,
-        headers: { 'www-authenticate': 'Basic realm="Era 84 Admin", charset="UTF-8"' },
-      });
+  if (req.method === 'POST') {
+    if (!isAuthed(req)) {
+      res.setHeader('WWW-Authenticate', 'Basic realm="Era 84 Admin", charset="UTF-8"');
+      return res.status(401).send('Unauthorized');
     }
-    let body = {};
-    try { body = await request.json(); } catch { /* empty body OK */ }
+    // Vercel auto-parses JSON bodies when Content-Type is application/json.
+    const body = (req.body && typeof req.body === 'object') ? req.body : {};
     const next = { open: !!body.open, updatedAt: new Date().toISOString() };
     try {
       await writeState(next);
     } catch (e) {
-      return json({ error: e.message || 'write failed' }, e.code === 503 ? 503 : 500);
+      return res.status(500).json({ error: e && e.message ? e.message : 'write failed' });
     }
-    return json(next);
+    return res.status(200).json(next);
   }
 
-  return new Response('Method Not Allowed', {
-    status: 405,
-    headers: { allow: 'GET, POST' },
-  });
+  res.setHeader('Allow', 'GET, POST');
+  return res.status(405).send('Method Not Allowed');
 }
