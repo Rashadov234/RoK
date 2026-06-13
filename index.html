@@ -977,72 +977,6 @@
     box-shadow: 0 0 30px rgba(88,101,242,0.4);
   }
 
-  /* ---------- APPLICATION ---------- */
-  .application {
-    border: 1px solid rgba(201,169,97,0.3);
-    padding: 56px;
-    background: linear-gradient(180deg, rgba(15,11,7,0.85), rgba(8,6,4,0.9));
-    text-align: center;
-    position: relative;
-  }
-  .application .seal {
-    width: 70px; height: 70px;
-    margin: 0 auto 24px;
-    border: 1px solid var(--gold);
-    border-radius: 50%;
-    position: relative;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .application .seal::before {
-    content: "";
-    position: absolute; inset: 6px;
-    border: 1px solid var(--rune);
-    border-radius: 50%;
-    box-shadow: inset 0 0 15px var(--rune-glow);
-  }
-  .application .seal::after {
-    content: "";
-    position: absolute;
-    width: 8px; height: 8px;
-    background: var(--gold-bright);
-    border-radius: 50%;
-    box-shadow: 0 0 18px var(--gold-bright);
-  }
-  .application h3 {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(1.8rem, 3vw, 2.4rem);
-    color: var(--cream);
-    margin-bottom: 12px;
-  }
-  .application h3 em {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    color: var(--gold-bright);
-  }
-  .application p {
-    max-width: 560px;
-    margin: 0 auto 32px;
-    color: rgba(244,232,208,0.72);
-    line-height: 1.7;
-    font-weight: 300;
-  }
-  .application-actions {
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .form-toggle-wrap { margin-top: 40px; }
-  #formFrame {
-    width: 100%;
-    height: 0;
-    border: none;
-    background: rgba(255,255,255,0.02);
-    transition: height 0.5s ease;
-    margin-top: 28px;
-  }
-  #formFrame.open { height: 1200px; }
-
   /* ---------- FOOTER ---------- */
   footer {
     padding: 60px 0 36px;
@@ -1094,7 +1028,6 @@
     .al-tag { width: auto; font-size: 0.7rem; margin-bottom: 4px; }
     .al-name { width: auto; font-size: 0.95rem; margin-bottom: 8px; }
     .al-bio { font-size: 0.95rem; }
-    .application { padding: 32px 24px; }
     .discord-icon { width: 56px; height: 56px; margin-bottom: 18px; }
     .discord-icon svg { width: 24px; height: 24px; }
 
@@ -1142,8 +1075,9 @@
     <li><a href="#hero">Realm</a></li>
     <li><a href="#leaderboard">Leadership</a></li>
     <li><a href="#join">Discord</a></li>
-    <li><a href="#apply">Migration</a></li>
+    <li><a href="apply.html">Apply to Join</a></li>
     <li><a href="migration-stats.html">Migration Stats</a></li>
+    <li><a href="admin.html">Admin</a></li>
   </ul>
   <button class="nav-toggle" id="navToggle" aria-label="Open navigation menu" aria-expanded="false">
     <span></span><span></span><span></span>
@@ -1157,8 +1091,9 @@
   <a href="#hero">Realm</a>
   <a href="#leaderboard">Leadership</a>
   <a href="#join">Discord</a>
-  <a href="#apply">Migration</a>
+  <a href="apply.html">Apply to Join</a>
   <a href="migration-stats.html">Migration Stats</a>
+  <a href="admin.html">Admin</a>
 </div>
 
 <main>
@@ -1444,28 +1379,6 @@
     </div>
   </section>
 
-  <!-- APPLICATION -->
-  <section class="scroll" id="apply">
-    <div class="container">
-      <div class="application">
-        <div class="seal"></div>
-        <div class="hero-meta" style="justify-content:center; margin-bottom:14px;">Sealed Petition</div>
-        <h3>File your <em>petition</em> to enter the realm.</h3>
-        <p>
-          Speak your name, your power, your former kingdom, and what you bring to the tide.
-          Our alliance leads review every petition within 24 hours. There is no fee — only an oath.
-        </p>
-        <div class="application-actions">
-          <button class="btn btn-primary" id="toggleForm">Open Application Scroll ›</button>
-          <a href="https://forms.gle/4rFjRzSDoEaA1VpP8" target="_blank" class="btn">Open in New Tab</a>
-        </div>
-        <div class="form-toggle-wrap">
-          <iframe id="formFrame" src="about:blank" data-src="https://docs.google.com/forms/d/e/1FAIpQLScSaPrHj-sNpEAWBDlL3SU6flyjnodF94xLBjRlmxlceXtJWQ/viewform?embedded=true" loading="lazy"></iframe>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <footer>
     <div class="container foot-inner">
       <div class="copy">Forged under stormlight. — Era #84</div>
@@ -1577,24 +1490,6 @@
       requestAnimationFrame(animate);
     }
   }, 15000);
-
-  // ===== FORM TOGGLE =====
-  const toggleBtn = document.getElementById('toggleForm');
-  const formFrame = document.getElementById('formFrame');
-  toggleBtn.addEventListener('click', () => {
-    if (formFrame.classList.contains('open')) {
-      formFrame.classList.remove('open');
-      toggleBtn.textContent = 'Open Application Scroll ›';
-    } else {
-      if (!formFrame.dataset.loaded) {
-        formFrame.src = formFrame.dataset.src;
-        formFrame.dataset.loaded = '1';
-      }
-      formFrame.classList.add('open');
-      toggleBtn.textContent = 'Close Scroll ✕';
-      setTimeout(() => formFrame.scrollIntoView({ behavior: 'smooth', block: 'start' }), 520);
-    }
-  });
 
   // ===== MOBILE MENU =====
   const navToggle = document.getElementById('navToggle');
