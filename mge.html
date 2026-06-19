@@ -213,11 +213,17 @@
     .field__input{padding:12px 14px;font-size:.95rem;}
     textarea.field__input{font-size:1rem;min-height:110px;}
 
-    /* Chips */
+    /* Chips — wrap onto multiple rows instead of scrolling off-screen */
+    .chips{flex-wrap:wrap;overflow-x:visible;padding-bottom:0;margin-bottom:0;}
+    .chip{flex:0 1 auto;}
     .chip__box{padding:9px 12px;font-size:.7rem;letter-spacing:.04em;gap:6px;}
     .chip__pt{font-size:.58rem;padding:2px 5px;}
     .chip__portrait{width:26px;height:26px;font-size:.6rem;margin-left:-2px;}
-    .chips--equal .chip{min-width:115px;}
+    /* Hero-choice options have long labels — stack them full width */
+    .chips--equal{flex-direction:column;}
+    .chips--equal .chip{flex:0 0 auto;min-width:0;width:100%;}
+    .chips--equal .chip__box{justify-content:flex-start;white-space:normal;text-align:left;}
+    .chips--equal .chip__pt{margin-left:auto;}
 
     /* Help button */
     .help-btn{width:18px;height:18px;font-size:.6rem;margin-left:6px;}
@@ -269,7 +275,6 @@
     .qgroup__eyebrow{font-size:.58rem;letter-spacing:.24em;}
     .field__label{font-size:.58rem;letter-spacing:.18em;}
     .chip__box{padding:8px 10px;font-size:.68rem;}
-    .chips--equal .chip{min-width:100px;}
     .btn{padding:14px 12px;font-size:.64rem;letter-spacing:.22em;}
   }
 </style>
