@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E84 | MGE Application</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#07090d; --stone:#1a1410; --cream:#f4e8d0; --parchment:#e8d9b8;
+    --gold:#c9a961; --gold-bright:#f0c95a; --gold-deep:#7a5f2b;
+    --rune:#4dd0ff; --blood:#e74e3a; --success:#5dd06a;
+    --font-display:'Cinzel',serif; --font-italic:'Cormorant Garamond',serif;
+    --font-body:'Inter',system-ui,-apple-system,sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto;}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
+  body{color:var(--cream);font-family:var(--font-body);line-height:1.55;-webkit-font-smoothing:antialiased;background:#07090d;min-height:100vh;overflow-x:hidden;}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;transform:translateZ(0);background:radial-gradient(ellipse at 50% 0%,rgba(77,208,255,.05) 0%,transparent 45%),radial-gradient(ellipse at 80% 80%,rgba(201,169,97,.07) 0%,transparent 50%),radial-gradient(ellipse at 10% 60%,rgba(139,26,26,.04) 0%,transparent 55%),linear-gradient(180deg,#050709 0%,#0a0d12 40%,#07090d 100%);}
+  body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.045;transform:translateZ(0);background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");}
+
+  /* ---------- SITE NAV (back to Era #84) ---------- */
+  nav.site-nav{position:fixed;top:0;left:0;right:0;z-index:60;padding:22px 48px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,rgba(7,9,13,.92),rgba(7,9,13,.6));backdrop-filter:blur(3px);border-bottom:1px solid rgba(201,169,97,.15);}
+  .crest{display:flex;align-items:center;gap:14px;text-decoration:none;}
+  .crest-icon{width:36px;height:36px;border:1px solid var(--gold);transform:rotate(45deg);position:relative;display:flex;align-items:center;justify-content:center;}
+  .crest-icon::before{content:"";position:absolute;inset:5px;border:1px solid var(--rune);box-shadow:0 0 12px rgba(77,208,255,.4);}
+  .crest-icon::after{content:"E";position:absolute;font-family:var(--font-display);font-weight:900;color:var(--gold-bright);transform:rotate(-45deg);font-size:.85rem;}
+  .crest-text{font-family:var(--font-display);font-size:.78rem;letter-spacing:.42em;color:var(--parchment);text-transform:uppercase;}
+  .crest-text span{color:var(--gold-bright);}
+  .back-link{font-family:var(--font-display);font-size:.72rem;letter-spacing:.35em;text-transform:uppercase;color:var(--parchment);text-decoration:none;display:flex;align-items:center;gap:10px;transition:color .3s;}
+  .back-link:hover{color:var(--gold-bright);}
+  .back-link .arr{transition:transform .3s;}
+  .back-link:hover .arr{transform:translateX(-4px);}
+
+  /* Form topbar sticks BELOW the site nav so both stay visible while scrolling */
+  .topbar{position:sticky;top:80px;z-index:50;margin-top:80px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 22px;background:linear-gradient(180deg,rgba(7,9,13,.92),rgba(7,9,13,.75));backdrop-filter:blur(6px);border-bottom:1px solid rgba(201,169,97,.22);}
+  .topbar__brand{font-family:var(--font-display);font-size:.7rem;font-weight:700;letter-spacing:.34em;color:var(--parchment);text-transform:uppercase;line-height:1.3;}
+  .topbar__brand span{display:block;margin-top:2px;font-family:var(--font-italic);font-style:italic;font-weight:500;font-size:.8rem;letter-spacing:.04em;color:var(--gold-bright);text-transform:none;}
+
+  .seal{display:flex;align-items:center;gap:12px;}
+  .seal__ring{width:46px;height:46px;border-radius:50%;border:2px solid var(--gold-deep);display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 30% 28%,rgba(255,255,255,.18),transparent 55%),radial-gradient(circle at 50% 50%,rgba(201,169,97,.18),rgba(8,6,4,.85) 80%);box-shadow:0 0 0 1px rgba(8,6,4,.6),inset 0 0 10px rgba(0,0,0,.5);transition:border-color .35s ease,box-shadow .35s ease;flex-shrink:0;}
+  .seal__ring svg{width:22px;height:22px;fill:var(--gold-deep);transition:fill .35s ease,filter .35s ease;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));}
+  .seal__text{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;}
+  .seal__tier{font-family:var(--font-display);font-size:.6rem;letter-spacing:.34em;font-weight:700;color:var(--parchment);text-transform:uppercase;}
+  .seal__score{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--cream);margin-top:2px;}
+  .seal--veteran .seal__ring{border-color:var(--gold);box-shadow:0 0 18px rgba(201,169,97,.25),inset 0 0 10px rgba(0,0,0,.5);}
+  .seal--veteran .seal__ring svg{fill:var(--gold);} .seal--veteran .seal__tier{color:var(--gold-bright);}
+  .seal--champion .seal__ring{border-color:var(--gold-bright);box-shadow:0 0 24px rgba(240,201,90,.45),0 0 0 3px rgba(240,201,90,.18),inset 0 0 12px rgba(0,0,0,.5);}
+  .seal--champion .seal__ring svg{fill:var(--gold-bright);filter:drop-shadow(0 0 4px rgba(240,201,90,.5));}
+  .seal--champion .seal__tier{color:var(--gold-bright);}
+  .seal--legendary .seal__ring{border-color:var(--blood);box-shadow:0 0 28px rgba(231,78,58,.55),0 0 0 4px rgba(231,78,58,.22),inset 0 0 14px rgba(0,0,0,.55);}
+  .seal--legendary .seal__ring svg{fill:var(--blood);filter:drop-shadow(0 0 5px rgba(231,78,58,.6));}
+  .seal--legendary .seal__tier{color:var(--blood);text-shadow:0 0 12px rgba(231,78,58,.5);}
+  @media (prefers-reduced-motion:no-preference){.seal--pulse .seal__ring{animation:sealPulse .7s ease-out;}}
+  @keyframes sealPulse{0%{box-shadow:0 0 0 0 rgba(240,201,90,.55);}100%{box-shadow:0 0 0 14px rgba(240,201,90,0);}}
+
+  .page{max-width:680px;margin:0 auto;padding:0 22px 80px;position:relative;z-index:1;}
+
+  .hero{text-align:center;padding:56px 8px 32px;}
+  .hero__eyebrow{display:inline-flex;align-items:center;gap:14px;font-family:var(--font-display);font-size:.66rem;letter-spacing:.42em;font-weight:700;color:var(--gold);text-transform:uppercase;margin:0 0 18px;}
+  .hero__eyebrow::before,.hero__eyebrow::after{content:"";width:30px;height:1px;background:var(--gold);}
+  .hero__title{font-family:var(--font-display);font-size:clamp(2.2rem,5vw,3.6rem);font-weight:900;letter-spacing:.02em;color:var(--cream);margin:0 0 18px;text-shadow:0 4px 40px rgba(0,0,0,.7);}
+  .hero__rule{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-bright),transparent);margin:0 auto 22px;position:relative;}
+  .hero__rule::before{content:"◆";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#07090d;padding:0 8px;color:var(--gold-bright);font-size:.55rem;text-shadow:0 0 8px rgba(240,201,90,.5);}
+  .hero__sub{font-family:var(--font-italic);font-style:italic;font-size:1.08rem;line-height:1.6;color:rgba(244,232,208,.75);max-width:46ch;margin:0 auto;}
+
+  .info-box{margin:24px 0 0;padding:18px 22px;text-align:left;background:linear-gradient(180deg,rgba(20,15,10,.78),rgba(8,6,4,.85));border:1px solid rgba(201,169,97,.25);position:relative;font-family:var(--font-italic);font-style:italic;font-size:1rem;color:rgba(244,232,208,.78);line-height:1.6;}
+  .info-box::before,.info-box::after{content:"";position:absolute;width:10px;height:10px;border:1px solid var(--gold);}
+  .info-box::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
+  .info-box::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
+  .info-box strong{color:var(--gold-bright);font-weight:600;font-style:normal;letter-spacing:.02em;}
+
+  .leaderboard-link{display:inline-flex;align-items:center;gap:10px;margin-top:24px;padding:14px 26px;background:rgba(26,20,16,.55);border:1px solid var(--gold);color:var(--gold-bright);font-family:var(--font-display);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;font-weight:700;text-decoration:none;position:relative;overflow:hidden;transition:color .25s,border-color .25s,box-shadow .25s,background .25s;}
+  .leaderboard-link::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(201,169,97,.18),transparent);transform:translateX(-100%);transition:transform .7s;}
+  .leaderboard-link:hover::before{transform:translateX(100%);}
+  .leaderboard-link:hover{color:#fff;border-color:var(--gold-bright);background:rgba(201,169,97,.12);box-shadow:0 0 22px rgba(201,169,97,.28);}
+  .leaderboard-link__arr{font-size:1.1em;line-height:1;transition:transform .25s;}
+  .leaderboard-link:hover .leaderboard-link__arr{transform:translateX(4px);}
+
+  fieldset.qgroup{border:none;margin:0 0 40px;padding:0;}
+  .qgroup__eyebrow{display:flex;align-items:center;gap:16px;font-family:var(--font-display);font-size:.72rem;letter-spacing:.38em;font-weight:700;color:var(--gold);text-transform:uppercase;margin:0 0 22px;}
+  .qgroup__eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(201,169,97,.4),transparent);}
+  .section-score{flex-shrink:0;font-family:var(--font-mono);font-size:.7rem;font-weight:700;color:var(--gold);letter-spacing:.06em;white-space:nowrap;padding:4px 10px;border:1px solid rgba(201,169,97,.35);background:rgba(201,169,97,.06);transition:color .2s,border-color .2s,background .2s;}
+  .section-score.full{color:var(--gold-bright);border-color:var(--gold-bright);background:rgba(240,201,90,.16);box-shadow:0 0 12px rgba(240,201,90,.25);}
+
+  .field{margin:0 0 22px;} .field:last-child{margin-bottom:0;}
+  .field__label{display:block;font-family:var(--font-display);font-size:.7rem;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--parchment);margin:0 0 10px;}
+  .field__hint{font-family:var(--font-italic);font-style:italic;font-weight:400;font-size:.95rem;letter-spacing:.02em;color:rgba(244,232,208,.5);text-transform:none;margin-left:6px;}
+  .req{color:var(--gold-bright);margin-left:4px;}
+  .field__input{width:100%;background:rgba(15,11,7,.7);border:1px solid rgba(201,169,97,.28);border-radius:0;padding:13px 16px;color:var(--cream);font-family:var(--font-body);font-size:.98rem;transition:border-color .2s,box-shadow .2s,background .2s;}
+  .field__input::placeholder{color:rgba(244,232,208,.4);}
+  .field__input:focus-visible{outline:none;border-color:var(--gold-bright);box-shadow:0 0 0 1px rgba(240,201,90,.35),0 0 16px rgba(201,169,97,.18);background:rgba(20,15,10,.85);}
+  select.field__input{-webkit-appearance:none;-moz-appearance:none;appearance:none;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,var(--gold-bright) 50%),linear-gradient(135deg,var(--gold-bright) 50%,transparent 50%);background-position:calc(100% - 22px) center,calc(100% - 16px) center;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:44px;}
+  select.field__input option{background:#1a1410;color:var(--cream);font-family:var(--font-body);}
+  textarea.field__input{resize:vertical;min-height:130px;font-family:var(--font-italic);font-style:italic;font-size:1.05rem;line-height:1.55;}
+  input[type="date"].field__input{color-scheme:dark;font-family:var(--font-mono);font-size:.95rem;}
+  input[type="date"].field__input::-webkit-calendar-picker-indicator{filter:invert(.7) sepia(1) saturate(3) hue-rotate(8deg);cursor:pointer;}
+
+  .chips{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:-6px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(201,169,97,.3) transparent;}
+  .chips::-webkit-scrollbar{height:4px;} .chips::-webkit-scrollbar-track{background:transparent;}
+  .chips::-webkit-scrollbar-thumb{background:rgba(201,169,97,.3);border-radius:2px;}
+  .chip{position:relative;cursor:pointer;flex:0 0 auto;}
+  .chip input{position:absolute;opacity:0;width:1px;height:1px;}
+  .chip__box{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;padding:10px 14px;border:1px solid rgba(201,169,97,.28);background:rgba(15,11,7,.7);color:rgba(244,232,208,.78);font-family:var(--font-display);font-size:.78rem;font-weight:600;letter-spacing:.05em;transition:background .2s,color .2s,border-color .2s,box-shadow .2s;user-select:none;}
+  .chip:hover .chip__box{border-color:var(--gold-bright);color:var(--cream);background:rgba(201,169,97,.08);}
+  .chip input:checked ~ .chip__box{background:linear-gradient(180deg,var(--gold-bright),var(--gold));border-color:var(--gold-bright);color:#1a1410;font-weight:700;box-shadow:0 0 18px rgba(240,201,90,.4),inset 0 -3px 8px rgba(0,0,0,.2);}
+  .chip input:focus-visible ~ .chip__box{outline:2px solid var(--gold-bright);outline-offset:2px;}
+  .chip__pt{font-family:var(--font-mono);font-size:.66rem;font-weight:700;padding:2px 6px;background:rgba(8,6,4,.6);color:var(--gold-bright);border:1px solid rgba(240,201,90,.4);}
+  .chip input:checked ~ .chip__box .chip__pt{background:rgba(0,0,0,.35);color:var(--gold-bright);border-color:rgba(0,0,0,.4);}
+  .chip__portrait{width:30px;height:30px;border-radius:50%;border:2px solid var(--gold-deep);box-shadow:0 0 8px rgba(201,169,97,.4);flex-shrink:0;margin-left:-4px;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.25),transparent 60%),radial-gradient(circle at 50% 50%,var(--blood),#5a1a10 70%);display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;font-size:.7rem;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6);}
+  .chip input:checked ~ .chip__box .chip__portrait{border-color:rgba(26,20,16,.7);box-shadow:0 0 0 1px rgba(26,20,16,.5);}
+  .chips--equal{flex-wrap:wrap;overflow:visible;padding-bottom:0;margin-bottom:0;}
+  .chips--equal .chip{flex:1 1 0;min-width:140px;display:flex;}
+  .chips--equal .chip__box{width:100%;justify-content:center;align-items:center;height:100%;}
+
+  .chip-hint{margin:12px 0 0;padding:12px 16px;background:rgba(20,15,10,.6);border-left:2px solid var(--gold);font-family:var(--font-italic);font-style:italic;font-size:.98rem;color:rgba(244,232,208,.75);line-height:1.55;}
+  .conditional{margin-top:18px;padding:20px;border:1px dashed rgba(201,169,97,.35);background:rgba(201,169,97,.04);}
+
+  .banner{padding:14px 18px;margin:0 0 20px;border-left:3px solid transparent;font-family:var(--font-body);font-size:.95rem;background:rgba(15,11,7,.7);}
+  .banner--error{background:rgba(231,78,58,.12);border-left-color:var(--blood);color:#f4c8c0;}
+  .banner--success{background:rgba(93,208,106,.12);border-left-color:var(--success);color:#d3eed8;}
+
+  .actions{margin-top:12px;}
+  .btn{width:100%;padding:17px 22px;border:1px solid var(--gold-bright);cursor:pointer;background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#1a1410;font-family:var(--font-display);font-size:.82rem;font-weight:700;letter-spacing:.32em;text-transform:uppercase;transition:background .2s,transform .1s,opacity .2s,box-shadow .3s;position:relative;overflow:hidden;}
+  .btn::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:translateX(-100%);transition:transform .7s;}
+  .btn:hover::before{transform:translateX(100%);} .btn:hover{background:linear-gradient(180deg,#fbdb7a,var(--gold-bright));box-shadow:0 0 24px rgba(240,201,90,.35);}
+  .btn:active{transform:scale(.99);} .btn:disabled{opacity:.5;cursor:not-allowed;background:linear-gradient(180deg,var(--gold-deep),#5a4520);} .btn:disabled::before{display:none;}
+  .btn--ghost{background:rgba(26,20,16,.55);border:1px solid var(--gold);color:var(--gold-bright);}
+  .btn--ghost:hover{background:rgba(201,169,97,.14);color:#fff;border-color:var(--gold-bright);box-shadow:0 0 22px rgba(201,169,97,.3);}
+
+  .success{text-align:center;padding:60px 16px;background:linear-gradient(180deg,rgba(20,15,10,.85),rgba(8,6,4,.9));border:1px solid rgba(201,169,97,.28);position:relative;margin:32px 0;}
+  .success::before,.success::after{content:"";position:absolute;width:14px;height:14px;border:1px solid var(--gold);}
+  .success::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
+  .success::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
+  .success__eyebrow{font-family:var(--font-display);font-size:.66rem;letter-spacing:.42em;font-weight:700;color:var(--gold);text-transform:uppercase;margin:0 0 14px;}
+  .success__title{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--cream);margin:0 0 18px;line-height:1.2;}
+  .success__score{font-family:var(--font-italic);font-style:italic;font-size:1.05rem;color:rgba(244,232,208,.7);margin:0 0 32px;}
+  .success__score span{font-family:var(--font-mono);font-weight:700;color:var(--gold-bright);font-size:1.4rem;letter-spacing:.04em;}
+
+  .lang-picker{display:flex;gap:4px;align-items:center;flex-wrap:nowrap;}
+  .lang-btn{padding:5px 8px;border:1px solid rgba(201,169,97,.28);background:rgba(15,11,7,.6);color:rgba(244,232,208,.55);font-family:var(--font-mono);font-size:.62rem;font-weight:700;letter-spacing:.06em;cursor:pointer;white-space:nowrap;transition:background .15s,color .15s,border-color .15s;}
+  .lang-btn:hover{border-color:var(--gold-bright);color:var(--gold-bright);}
+  .lang-btn.lang-active{background:linear-gradient(180deg,var(--gold-bright),var(--gold));border-color:var(--gold-bright);color:#1a1410;}
+
+  .help-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--gold);background:transparent;color:var(--gold-bright);font-family:var(--font-display);font-size:.7rem;font-weight:700;cursor:pointer;line-height:1;margin-left:8px;vertical-align:middle;padding:0;transition:background .15s,color .15s,box-shadow .15s;}
+  .help-btn:hover{background:var(--gold-bright);color:#1a1410;box-shadow:0 0 12px rgba(240,201,90,.5);}
+
+  .modal-backdrop{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;}
+  .modal-backdrop[hidden]{display:none;}
+  .modal{background:linear-gradient(180deg,rgba(20,15,10,.96),rgba(8,6,4,.98));border:1px solid rgba(201,169,97,.4);width:100%;max-width:440px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.7),0 0 40px rgba(201,169,97,.15);position:relative;}
+  .modal::before,.modal::after{content:"";position:absolute;width:14px;height:14px;border:1px solid var(--gold);pointer-events:none;}
+  .modal::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
+  .modal::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
+  .modal__header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid rgba(201,169,97,.25);flex-shrink:0;}
+  .modal__title{font-family:var(--font-display);font-size:.72rem;letter-spacing:.38em;font-weight:700;color:var(--gold);text-transform:uppercase;}
+  .modal__close{background:none;border:none;cursor:pointer;color:rgba(244,232,208,.55);font-size:1.1rem;line-height:1;padding:6px;transition:color .15s;}
+  .modal__close:hover{color:var(--gold-bright);}
+  .modal__body{overflow-y:auto;padding:0;}
+  .modal__body::-webkit-scrollbar{width:6px;} .modal__body::-webkit-scrollbar-track{background:rgba(0,0,0,.3);}
+  .modal__body::-webkit-scrollbar-thumb{background:rgba(201,169,97,.3);}
+
+  .rank-table{width:100%;border-collapse:collapse;font-size:.9rem;}
+  .rank-table th{position:sticky;top:0;background:rgba(8,6,4,.95);color:var(--gold);font-family:var(--font-display);font-size:.62rem;letter-spacing:.28em;font-weight:700;text-transform:uppercase;padding:12px 16px;text-align:right;border-bottom:1px solid rgba(201,169,97,.3);}
+  .rank-table th:first-child{text-align:center;}
+  .rank-table td{padding:9px 16px;text-align:right;color:rgba(244,232,208,.75);border-bottom:1px solid rgba(201,169,97,.08);font-family:var(--font-body);}
+  .rank-table td:first-child{text-align:center;font-family:var(--font-mono);font-weight:700;color:var(--cream);}
+  .rank-table td:nth-child(2){font-family:var(--font-mono);color:rgba(244,232,208,.55);}
+  .rank-table td:nth-child(3){font-family:var(--font-mono);font-weight:700;color:var(--gold-bright);}
+  .rank-table td:nth-child(4){font-family:var(--font-mono);font-weight:700;color:var(--rune);}
+  .rank-table tbody tr:hover td{background:rgba(201,169,97,.06);}
+
+  @media (max-width:560px){
+    /* Site nav */
+    nav.site-nav{padding:14px 18px;}
+    .crest{gap:12px;}
+    .crest-icon{width:32px;height:32px;}
+    .crest-icon::after{font-size:.78rem;}
+    .crest-text{font-size:.66rem;letter-spacing:.32em;}
+    .back-link{font-size:.62rem;letter-spacing:.28em;gap:8px;}
+
+    /* Form topbar (sticks right below site-nav ~62px on mobile) */
+    .topbar{padding:10px 14px;gap:8px;top:62px;margin-top:62px;}
+    .topbar__brand{font-size:.56rem;letter-spacing:.22em;line-height:1.25;}
+    .topbar__brand span{font-size:.66rem;letter-spacing:.02em;margin-top:1px;}
+    .seal{gap:8px;}
+    .seal__ring{width:38px;height:38px;} .seal__ring svg{width:16px;height:16px;}
+    .seal__score{font-size:.92rem;} .seal__tier{font-size:.52rem;letter-spacing:.26em;}
+    .lang-picker{gap:3px;}
+    .lang-btn{padding:4px 6px;font-size:.55rem;letter-spacing:.04em;}
+
+    /* Page */
+    .page{padding:0 16px 60px;}
+
+    /* Hero */
+    .hero{padding:36px 4px 24px;}
+    .hero__title{font-size:1.85rem;}
+    .hero__eyebrow{font-size:.6rem;letter-spacing:.32em;gap:10px;}
+    .hero__eyebrow::before,.hero__eyebrow::after{width:22px;}
+    .hero__sub{font-size:.96rem;}
+    .info-box{padding:14px 16px;font-size:.92rem;line-height:1.5;}
+    .leaderboard-link{font-size:.62rem;letter-spacing:.26em;padding:12px 20px;margin-top:18px;}
+
+    /* Form structure */
+    fieldset.qgroup{margin:0 0 32px;}
+    .qgroup__eyebrow{font-size:.62rem;letter-spacing:.28em;gap:10px;margin-bottom:18px;}
+    .section-score{font-size:.6rem;padding:3px 8px;letter-spacing:.04em;}
+    .field{margin:0 0 18px;}
+    .field__label{font-size:.62rem;letter-spacing:.2em;margin:0 0 8px;}
+    .field__hint{font-size:.85rem;}
+    .field__input{padding:12px 14px;font-size:.95rem;}
+    textarea.field__input{font-size:1rem;min-height:110px;}
+
+    /* Chips */
+    .chip__box{padding:9px 12px;font-size:.7rem;letter-spacing:.04em;gap:6px;}
+    .chip__pt{font-size:.58rem;padding:2px 5px;}
+    .chip__portrait{width:26px;height:26px;font-size:.6rem;margin-left:-2px;}
+    .chips--equal .chip{min-width:115px;}
+
+    /* Help button */
+    .help-btn{width:18px;height:18px;font-size:.6rem;margin-left:6px;}
+
+    /* Conditional + buttons + banner + success */
+    .conditional{padding:16px;}
+    .btn{padding:15px 16px;font-size:.7rem;letter-spacing:.26em;}
+    .banner{padding:12px 14px;font-size:.9rem;}
+    .success{padding:44px 14px;}
+    .success__title{font-size:1.35rem;}
+    .success__score{font-size:.96rem;}
+    .success__score span{font-size:1.2rem;}
+
+    /* Modal */
+    .modal-backdrop{padding:14px;}
+    .modal{max-height:90vh;}
+    .modal__header{padding:14px 16px;}
+    .modal__title{font-size:.62rem;letter-spacing:.3em;}
+    .rank-table th{padding:10px 12px;font-size:.55rem;letter-spacing:.24em;}
+    .rank-table td{padding:7px 12px;font-size:.85rem;}
+  }
+
+  @media (max-width:400px){
+    /* Site nav: minimal */
+    nav.site-nav{padding:12px 14px;}
+    .crest-icon{width:30px;height:30px;}
+    .crest-icon::after{font-size:.72rem;}
+    .crest-text{font-size:.6rem;letter-spacing:.26em;}
+    .back-link{font-size:.56rem;letter-spacing:.22em;}
+
+    /* Topbar: very compact, single row */
+    .topbar{padding:8px 12px;gap:6px;top:56px;margin-top:56px;}
+    .topbar__brand{font-size:.5rem;letter-spacing:.18em;}
+    .topbar__brand span{font-size:.58rem;}
+    .seal__ring{width:34px;height:34px;}
+    .seal__ring svg{width:14px;height:14px;}
+    .seal__score{font-size:.82rem;}
+    .seal__tier{font-size:.46rem;letter-spacing:.2em;}
+    .lang-picker{gap:2px;}
+    .lang-btn{padding:3px 5px;font-size:.5rem;}
+
+    /* Hero */
+    .hero{padding:28px 2px 20px;}
+    .hero__title{font-size:1.6rem;}
+    .hero__sub{font-size:.92rem;}
+    .info-box{padding:12px 14px;font-size:.88rem;}
+
+    /* Form */
+    .qgroup__eyebrow{font-size:.58rem;letter-spacing:.24em;}
+    .field__label{font-size:.58rem;letter-spacing:.18em;}
+    .chip__box{padding:8px 10px;font-size:.68rem;}
+    .chips--equal .chip{min-width:100px;}
+    .btn{padding:14px 12px;font-size:.64rem;letter-spacing:.22em;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="crest">
+    <div class="crest-icon"></div>
+    <div class="crest-text">Era <span>#84</span></div>
+  </a>
+  <a href="index.html" class="back-link"><span class="arr">‹</span> Return</a>
+</nav>
+
+<header class="topbar">
+  <div class="topbar__brand">
+    E84 | Mightiest Governor Event (MGE)
+    <span>Hero Application</span>
+  </div>
+  <div class="lang-picker" id="langPicker">
+    <button class="lang-btn lang-active" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="es">ES</button>
+    <button class="lang-btn" data-lang="pt">PT</button>
+    <button class="lang-btn" data-lang="id">ID</button>
+    <button class="lang-btn" data-lang="fr">FR</button>
+    <button class="lang-btn" data-lang="tr">TR</button>
+    <button class="lang-btn" data-lang="nl">NL</button>
+  </div>
+  <div class="seal" id="seal">
+    <div class="seal__ring">
+      <svg viewBox="0 0 24 24"><path d="M12 2l2.4 4.86 5.36.78-3.88 3.78.92 5.34L12 14.27l-4.8 2.49.92-5.34-3.88-3.78 5.36-.78z"/></svg>
+    </div>
+    <div class="seal__text" aria-live="polite">
+      <span class="seal__tier" id="sealTier">Recruit</span>
+      <span class="seal__score" id="sealScore">0</span>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+
+  <section class="hero">
+    <p class="hero__eyebrow" id="i18n-eyebrow">Mightiest Governor Event</p>
+    <h1 class="hero__title" id="i18n-title">APPLICATION</h1>
+    <div class="hero__rule"></div>
+    <p class="hero__sub" id="i18n-subtitle">Make your case to the council for the MGE legendary hero. Every entry below is weighed — fill it in completely and honestly.</p>
+    <div class="info-box" id="i18n-hero-info">
+      Ranks 1–50 grant a fixed number of hero medals at the end of the event. A <strong>"fixed" MGE</strong> means these ranks are pre&#8209;assigned to specific players so they do not compete. All players are expected to follow the rules of the fixed event, including <strong>not exceeding the assigned point limits</strong>.
+    </div>
+    <a href="mge-leaderboard.html" class="leaderboard-link">
+      <span>View MGE Leaderboard</span>
+      <span class="leaderboard-link__arr">›</span>
+    </a>
+  </section>
+
+  <form id="appForm" novalidate>
+
+    <fieldset class="qgroup">
+      <p class="qgroup__eyebrow" id="i18n-sec-identity">Governor Identity</p>
+
+      <div class="field">
+        <label class="field__label" for="playerName"><span id="i18n-playername">Player name</span><span class="req">*</span></label>
+        <input class="field__input" type="text" id="playerName" name="playerName" autocomplete="name" placeholder="Your in-game name" required>
+      </div>
+
+      <div class="field">
+        <span class="field__label"><span id="i18n-alliance">Alliance</span><span class="req">*</span></span>
+        <div class="chips" data-field="alliance">
+          <label class="chip"><input type="radio" name="alliance" value="LOK" required><span class="chip__box">LOK</span></label>
+          <label class="chip"><input type="radio" name="alliance" value="RoK1"><span class="chip__box">RoK1</span></label>
+          <label class="chip"><input type="radio" name="alliance" value="RoK2"><span class="chip__box">RoK2</span></label>
+          <label class="chip"><input type="radio" name="alliance" value="SAR"><span class="chip__box">SAR</span></label>
+          <label class="chip"><input type="radio" name="alliance" value="SPK"><span class="chip__box">SPK</span></label>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="qgroup">
+      <p class="qgroup__eyebrow">
+        <span id="i18n-sec-perf">Performance Score</span>
+        <span class="section-score" id="perfScoreLabel">0 / 35</span>
+      </p>
+
+      <div class="field">
+        <span class="field__label"><span id="i18n-power">Current power</span><span class="req">*</span></span>
+        <div class="chips" data-field="power">
+          <label class="chip"><input type="radio" name="power" value="&lt;70M" required><span class="chip__box">&lt;70M<span class="chip__pt">+1</span></span></label>
+          <label class="chip"><input type="radio" name="power" value="70M-90M"><span class="chip__box">70M–90M<span class="chip__pt">+2</span></span></label>
+          <label class="chip"><input type="radio" name="power" value="90M-110M"><span class="chip__box">90M–110M<span class="chip__pt">+3</span></span></label>
+          <label class="chip"><input type="radio" name="power" value="110M-140M"><span class="chip__box">110M–140M<span class="chip__pt">+4</span></span></label>
+          <label class="chip"><input type="radio" name="power" value="&gt;140M"><span class="chip__box">&gt;140M<span class="chip__pt">+5</span></span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field__label"><span id="i18n-merits">Current merits</span><span class="req">*</span></span>
+        <div class="chips" data-field="merits">
+          <label class="chip"><input type="radio" name="merits" value="&lt;10M" required><span class="chip__box">&lt;10M<span class="chip__pt">+1</span></span></label>
+          <label class="chip"><input type="radio" name="merits" value="10M-15M"><span class="chip__box">10M–15M<span class="chip__pt">+2</span></span></label>
+          <label class="chip"><input type="radio" name="merits" value="15M-30M"><span class="chip__box">15M–30M<span class="chip__pt">+3</span></span></label>
+          <label class="chip"><input type="radio" name="merits" value="30M-50M"><span class="chip__box">30M–50M<span class="chip__pt">+4</span></span></label>
+          <label class="chip"><input type="radio" name="merits" value="&gt;50M"><span class="chip__box">&gt;50M<span class="chip__pt">+5</span></span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field__label"><span id="i18n-lineup">Main hero lineup</span> <em class="field__hint" id="i18n-lineup-hint">(select all that apply)</em></span>
+        <div class="chips" data-field="lineup">
+          <label class="chip"><input type="checkbox" name="lineup" value="Archer"><span class="chip__box">Archer</span></label>
+          <label class="chip"><input type="checkbox" name="lineup" value="Cavalry"><span class="chip__box">Cavalry</span></label>
+          <label class="chip"><input type="checkbox" name="lineup" value="Pike"><span class="chip__box">Pike</span></label>
+          <label class="chip"><input type="checkbox" name="lineup" value="Sword"><span class="chip__box">Sword<span class="chip__pt">+1</span></span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field__label"><span id="i18n-troop">Troop tier unlocked (after MGE)</span><span class="req">*</span></span>
+        <div class="chips" data-field="troopTier">
+          <label class="chip"><input type="radio" name="troopTier" value="T6" required><span class="chip__box">T6<span class="chip__pt">+1</span></span></label>
+          <label class="chip"><input type="radio" name="troopTier" value="T7"><span class="chip__box">T7<span class="chip__pt">+2</span></span></label>
+          <label class="chip"><input type="radio" name="troopTier" value="T8"><span class="chip__box">T8<span class="chip__pt">+3</span></span></label>
+          <label class="chip"><input type="radio" name="troopTier" value="T9"><span class="chip__box">T9<span class="chip__pt">+4</span></span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="meeRankLast"><span id="i18n-meerank">Your last MEE Prep stage rank</span><span class="req">*</span></label>
+        <select class="field__input" id="meeRankLast" name="meeRankLast" required>
+          <option value="" disabled selected>Choose your rank…</option>
+          <option value="1">1st place – +20 pts</option>
+          <option value="2">2nd place – +18 pts</option>
+          <option value="3">3rd place – +16 pts</option>
+          <option value="4">4th place – +14 pts</option>
+          <option value="5">5th place – +12 pts</option>
+          <option value="6">6th place – +10 pts</option>
+          <option value="7">7th place – +9 pts</option>
+          <option value="8">8th place – +8 pts</option>
+          <option value="9">9th place – +7 pts</option>
+          <option value="10">10th place – +6 pts</option>
+          <option value="11-20">11th–20th – +5 pts</option>
+          <option value="21-30">21st–30th – +3 pts</option>
+          <option value="31-50">31st–50th – +1 pt</option>
+          <option value="&gt;51">51st or below – +0 pts</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <fieldset class="qgroup">
+      <p class="qgroup__eyebrow">
+        <span id="i18n-sec-hero">Hero Preference Score</span>
+        <span class="section-score" id="heroScoreLabel">0 / 5</span>
+      </p>
+
+      <div class="field">
+        <span class="field__label"><span id="i18n-hero-choice">What hero do you want?</span><span class="req">*</span></span>
+        <div class="chips chips--equal" data-field="heroChoice">
+          <label class="chip">
+            <input type="radio" name="heroChoice" value="Main MGE hero" required>
+            <span class="chip__box">
+              <span class="chip__portrait" aria-hidden="true">C</span>
+              Main MGE hero<span class="chip__pt">+5</span>
+            </span>
+          </label>
+          <label class="chip"><input type="radio" name="heroChoice" value="Other MGE hero"><span class="chip__box">Other MGE hero<span class="chip__pt">+3</span></span></label>
+          <label class="chip"><input type="radio" name="heroChoice" value="Custom Legendary Hero"><span class="chip__box">Custom Legendary Hero<span class="chip__pt">+1</span></span></label>
+        </div>
+        <p class="chip-hint" id="mainMgeHint" hidden>The primary hero featured in the MGE event. Gives the highest scoring priority because it provides the biggest kingdom benefit.</p>
+        <p class="chip-hint" id="otherMgeHint" hidden>Secondary hero available in the event. Lower priority than the main hero.</p>
+        <p class="chip-hint" id="customHeroHint" hidden>A hero chosen by the player outside the main MGE rotation. Lowest priority in scoring.</p>
+      </div>
+
+      <div class="field">
+        <span class="field__label"><span id="i18n-starlevel">How many stars is your hero now?</span><span class="req">*</span></span>
+        <div class="chips" data-field="starLevel">
+          <label class="chip"><input type="radio" name="starLevel" value="0" required><span class="chip__box">0★</span></label>
+          <label class="chip"><input type="radio" name="starLevel" value="1"><span class="chip__box">1★</span></label>
+          <label class="chip"><input type="radio" name="starLevel" value="2"><span class="chip__box">2★</span></label>
+          <label class="chip"><input type="radio" name="starLevel" value="3"><span class="chip__box">3★</span></label>
+          <label class="chip"><input type="radio" name="starLevel" value="4"><span class="chip__box">4★</span></label>
+          <label class="chip"><input type="radio" name="starLevel" value="5"><span class="chip__box">5★</span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="field__label"><span id="i18n-medals">How many medals do you want?</span><span class="req">*</span>
+          <button type="button" class="help-btn" id="medalsHelpBtn" aria-label="Show medals reference table">?</button>
+        </span>
+        <div class="chips" data-field="medalsWanted">
+          <label class="chip"><input type="radio" name="medalsWanted" value="100" required><span class="chip__box">100</span></label>
+          <label class="chip"><input type="radio" name="medalsWanted" value="80"><span class="chip__box">80</span></label>
+          <label class="chip"><input type="radio" name="medalsWanted" value="60"><span class="chip__box">60</span></label>
+          <label class="chip"><input type="radio" name="medalsWanted" value="40"><span class="chip__box">40</span></label>
+          <label class="chip"><input type="radio" name="medalsWanted" value="20"><span class="chip__box">20</span></label>
+          <label class="chip"><input type="radio" name="medalsWanted" value="10"><span class="chip__box">10</span></label>
+          <label class="chip"><input type="radio" name="medalsWanted" value="5"><span class="chip__box">5</span></label>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="qgroup">
+      <p class="qgroup__eyebrow">
+        <span id="i18n-sec-mee">Previous MEE Performance (No MGE Awarded)</span>
+        <span class="section-score" id="meeScoreLabel">0 / 6</span>
+      </p>
+
+      <div class="info-box" id="i18n-mee-info">
+        Extra points are awarded for past top&#8209;25 MEE finishes where you did <strong>not</strong> receive MGE.
+        Each skip = <strong>+2 points</strong>, max <strong>6</strong>.
+      </div>
+
+      <div class="field" style="margin-top:22px;">
+        <span class="field__label"><span id="i18n-top25q">Have you finished in the top 25 in any of the last 3 MEE events?</span><span class="req">*</span></span>
+        <div class="chips" data-field="top25History">
+          <label class="chip"><input type="radio" name="top25History" value="Yes" required><span class="chip__box">Yes</span></label>
+          <label class="chip"><input type="radio" name="top25History" value="No"><span class="chip__box">No</span></label>
+        </div>
+      </div>
+
+      <div class="conditional" id="historyDates" hidden>
+        <div class="field">
+          <label class="field__label" for="meeDate1"><span id="i18n-meedate1">Most recent top-25 finish – date</span><span class="chip__pt" style="margin-left:8px;">+2</span></label>
+          <input class="field__input" type="date" id="meeDate1" name="meeDate1">
+        </div>
+        <div class="field">
+          <label class="field__label" for="meeDate2"><span id="i18n-meedate2">2nd most recent top-25 finish – date</span><span class="chip__pt" style="margin-left:8px;">+2</span></label>
+          <input class="field__input" type="date" id="meeDate2" name="meeDate2">
+        </div>
+        <div class="field">
+          <label class="field__label" for="meeDate3"><span id="i18n-meedate3">3rd most recent top-25 finish – date</span><span class="chip__pt" style="margin-left:8px;">+2</span></label>
+          <input class="field__input" type="date" id="meeDate3" name="meeDate3">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="qgroup">
+      <p class="qgroup__eyebrow" id="i18n-sec-case">Your Case</p>
+
+      <div class="field">
+        <label class="field__label" for="motivation"><span id="i18n-motivation">Why should you get the MGE hero?</span></label>
+        <textarea class="field__input" id="motivation" name="motivation" rows="5" placeholder="Make your case to the council…"></textarea>
+      </div>
+    </fieldset>
+
+    <div class="banner" id="banner" role="alert" hidden></div>
+
+    <div class="actions">
+      <button class="btn" type="submit" id="submitBtn">Submit Application</button>
+    </div>
+  </form>
+
+  <div class="success" id="successPanel" hidden>
+    <p class="success__eyebrow" id="i18n-success-eyebrow">Application Received</p>
+    <h2 class="success__title" id="i18n-success-title">The council has your case on file.</h2>
+    <p class="success__score"><span id="i18n-success-score">Recorded score:</span> <span id="successScore">0</span></p>
+    <button class="btn btn--ghost" type="button" id="resetBtn">Submit another response</button>
+  </div>
+
+</main>
+
+<div class="modal-backdrop" id="medalsModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal__header">
+      <span class="modal__title" id="i18n-modal-title">Rank · Points · Medals</span>
+      <button class="modal__close" id="medalsModalClose" aria-label="Close">&#x2715;</button>
+    </div>
+    <div class="modal__body">
+      <table class="rank-table">
+        <thead>
+          <tr><th id="i18n-col-rank">Rank</th><th id="i18n-col-points">Points</th><th id="i18n-col-mge">Medals MGE</th><th id="i18n-col-custom">Medals Custom</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>36M</td><td>100</td><td>100</td></tr>
+          <tr><td>2</td><td>35M</td><td>80</td><td>90</td></tr>
+          <tr><td>3</td><td>34M</td><td>60</td><td>80</td></tr>
+          <tr><td>4</td><td>33M</td><td>40</td><td>70</td></tr>
+          <tr><td>5</td><td>32M</td><td>30</td><td>60</td></tr>
+          <tr><td>6</td><td>31M</td><td>20</td><td>50</td></tr>
+          <tr><td>7</td><td>30M</td><td>20</td><td>50</td></tr>
+          <tr><td>8</td><td>29M</td><td>15</td><td>35</td></tr>
+          <tr><td>9</td><td>28M</td><td>15</td><td>35</td></tr>
+          <tr><td>10</td><td>27M</td><td>15</td><td>35</td></tr>
+          <tr><td>11</td><td>26M</td><td>12</td><td>30</td></tr>
+          <tr><td>12</td><td>25M</td><td>12</td><td>30</td></tr>
+          <tr><td>13</td><td>24M</td><td>12</td><td>30</td></tr>
+          <tr><td>14</td><td>23M</td><td>12</td><td>30</td></tr>
+          <tr><td>15</td><td>22M</td><td>12</td><td>30</td></tr>
+          <tr><td>16</td><td>21M</td><td>10</td><td>30</td></tr>
+          <tr><td>17</td><td>20M</td><td>10</td><td>30</td></tr>
+          <tr><td>18</td><td>19M</td><td>10</td><td>30</td></tr>
+          <tr><td>19</td><td>18M</td><td>10</td><td>30</td></tr>
+          <tr><td>20</td><td>17M</td><td>10</td><td>30</td></tr>
+          <tr><td>21</td><td>16M</td><td>10</td><td>30</td></tr>
+          <tr><td>22</td><td>15M</td><td>10</td><td>30</td></tr>
+          <tr><td>23</td><td>14M</td><td>10</td><td>30</td></tr>
+          <tr><td>24</td><td>13M</td><td>10</td><td>30</td></tr>
+          <tr><td>25</td><td>12M</td><td>10</td><td>30</td></tr>
+          <tr><td>26–50</td><td>11</td><td>5</td><td>?</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxlfWbCvYXK5U3wvMNM3LMVNUtHk5p6euPMKvLmDbu14_bK_-aPQhUORtgWfnGU8cFP/exec";
+
+  var SCORING = {
+    power:      { "<70M":1, "70M-90M":2, "90M-110M":3, "110M-140M":4, ">140M":5 },
+    merits:     { "<10M":1, "10M-15M":2, "15M-30M":3, "30M-50M":4, ">50M":5 },
+    heroChoice: { "Main MGE hero":5, "Other MGE hero":3, "Custom Legendary Hero":1 },
+    lineup:     { "Archer":0, "Cavalry":0, "Pike":0, "Sword":1 },
+    troopTier:  { "T6":1, "T7":2, "T8":3, "T9":4 },
+    meeRankLast: {
+      "1":20,"2":18,"3":16,"4":14,"5":12,"6":10,"7":9,"8":8,"9":7,"10":6,
+      "11-20":5,"21-30":3,"31-50":1,">51":0
+    },
+    pastTop25BonusPerDate: 2
+  };
+
+  var PERF_MAX = 35;
+  var MEE_MAX  =  6;
+  var HERO_MAX = 5;
+
+  var TIERS = [
+    { max:14,       label:"Recruit",  cls:"seal--recruit"  },
+    { max:29,       label:"Veteran",  cls:"seal--veteran"  },
+    { max:44,       label:"Champion", cls:"seal--champion" },
+    { max:Infinity, label:"Legendary",cls:"seal--legendary"}
+  ];
+
+  var form           = document.getElementById("appForm");
+  var seal           = document.getElementById("seal");
+  var sealTierEl     = document.getElementById("sealTier");
+  var sealScoreEl    = document.getElementById("sealScore");
+  var perfScoreLabel = document.getElementById("perfScoreLabel");
+  var heroScoreLabel = document.getElementById("heroScoreLabel");
+  var meeScoreLabel  = document.getElementById("meeScoreLabel");
+  var historyDates   = document.getElementById("historyDates");
+  var meeDate1       = document.getElementById("meeDate1");
+  var meeDate2       = document.getElementById("meeDate2");
+  var meeDate3       = document.getElementById("meeDate3");
+  var banner         = document.getElementById("banner");
+  var submitBtn      = document.getElementById("submitBtn");
+  var successPanel   = document.getElementById("successPanel");
+  var successScore   = document.getElementById("successScore");
+  var resetBtn       = document.getElementById("resetBtn");
+
+  var mainMgeHint  = document.getElementById("mainMgeHint");
+  var otherMgeHint = document.getElementById("otherMgeHint");
+  var customHeroHint = document.getElementById("customHeroHint");
+
+  form.addEventListener("change", function (e) {
+    if (e.target && e.target.name === "top25History") {
+      var isYes = e.target.value === "Yes";
+      historyDates.hidden = !isYes;
+      if (!isYes) { meeDate1.value = ""; meeDate2.value = ""; meeDate3.value = ""; }
+      recalc();
+    }
+    if (e.target && e.target.name === "heroChoice") {
+      var v = e.target.value;
+      mainMgeHint.hidden    = (v !== "Main MGE hero");
+      otherMgeHint.hidden   = (v !== "Other MGE hero");
+      customHeroHint.hidden = (v !== "Custom Legendary Hero");
+      recalc();
+    }
+  });
+
+  function computeBreakdown(fd) {
+    var perf = 0;
+    perf += SCORING.power[fd.get("power")] || 0;
+    perf += SCORING.merits[fd.get("merits")] || 0;
+    fd.getAll("lineup").forEach(function (v) { perf += SCORING.lineup[v] || 0; });
+    perf += SCORING.troopTier[fd.get("troopTier")] || 0;
+    perf += SCORING.meeRankLast[fd.get("meeRankLast")] || 0;
+
+    var hero = SCORING.heroChoice[fd.get("heroChoice")] || 0;
+
+    var mee = 0;
+    ["meeDate1","meeDate2","meeDate3"].forEach(function (k) {
+      if (fd.get(k)) mee += SCORING.pastTop25BonusPerDate;
+    });
+
+    return { perf: perf, hero: hero, mee: mee, total: perf + hero + mee };
+  }
+
+  function tierFor(score) {
+    for (var i = 0; i < TIERS.length; i++) { if (score <= TIERS[i].max) return TIERS[i]; }
+    return TIERS[TIERS.length - 1];
+  }
+
+  function recalc() {
+    var fd = new FormData(form);
+    var b  = computeBreakdown(fd);
+    var tier = tierFor(b.total);
+    var changed = sealTierEl.textContent !== tier.label;
+
+    sealScoreEl.textContent = b.total;
+    sealTierEl.textContent  = tier.label;
+    seal.classList.remove("seal--recruit","seal--veteran","seal--champion","seal--legendary","seal--pulse");
+    seal.classList.add(tier.cls);
+    if (changed) {
+      seal.classList.add("seal--pulse");
+      setTimeout(function () { seal.classList.remove("seal--pulse"); }, 650);
+    }
+
+    perfScoreLabel.textContent = b.perf + " / " + PERF_MAX;
+    perfScoreLabel.classList.toggle("full", b.perf >= PERF_MAX);
+
+    heroScoreLabel.textContent = b.hero + " / " + HERO_MAX;
+    heroScoreLabel.classList.toggle("full", b.hero >= HERO_MAX);
+
+    meeScoreLabel.textContent = b.mee + " / " + MEE_MAX;
+    meeScoreLabel.classList.toggle("full", b.mee >= MEE_MAX);
+
+    return b.total;
+  }
+
+  form.addEventListener("input", recalc);
+  form.addEventListener("change", recalc);
+  recalc();
+
+  function showBanner(type, msg) {
+    banner.hidden = false;
+    banner.className = "banner banner--" + type;
+    banner.textContent = msg;
+  }
+
+  function setSubmitting(on) {
+    submitBtn.disabled = on;
+    submitBtn.textContent = on ? "Submitting…" : "Submit Application";
+  }
+
+  function showSuccess(score) {
+    form.hidden = true;
+    successScore.textContent = score;
+    successPanel.hidden = false;
+  }
+
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    banner.hidden = true;
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+
+    var fd    = new FormData(form);
+    var score = computeBreakdown(fd).total;
+    var payload = {
+      playerName:   fd.get("playerName") || "",
+      alliance:     fd.get("alliance")   || "",
+      power:        fd.get("power")      || "",
+      merits:       fd.get("merits")     || "",
+      heroChoice:   fd.get("heroChoice") || "",
+      starLevel:    fd.get("starLevel")  || "",
+      medalsWanted: fd.get("medalsWanted") || "",
+      lineup:       fd.getAll("lineup"),
+      troopTier:    fd.get("troopTier")  || "",
+      meeRankLast:  fd.get("meeRankLast")|| "",
+      meeDate1:     fd.get("meeDate1")   || "",
+      meeDate2:     fd.get("meeDate2")   || "",
+      meeDate3:     fd.get("meeDate3")   || "",
+      motivation:   fd.get("motivation") || "",
+      clientScore:  score
+    };
+
+    setSubmitting(true);
+    var getUrl = WEBAPP_URL + '?payload=' + encodeURIComponent(JSON.stringify(payload));
+    fetch(getUrl)
+      .then(function(res) { return res.json(); })
+      .then(function(json) {
+        if (json && json.result === 'success') {
+          showSuccess(score);
+        } else {
+          throw new Error((json && json.message) || 'Server error');
+        }
+      })
+      .catch(function(err) {
+        var raw = err && err.message ? err.message : 'unknown';
+        showBanner('error', 'Could not reach the server (' + raw + '). Check your connection and try again.');
+      })
+      .finally(function() { setSubmitting(false); });
+  });
+
+  resetBtn.addEventListener("click", function () {
+    form.reset();
+    form.hidden = false;
+    successPanel.hidden = true;
+    historyDates.hidden = true;
+    mainMgeHint.hidden = true;
+    otherMgeHint.hidden = true;
+    customHeroHint.hidden = true;
+    banner.hidden = true;
+    recalc();
+  });
+
+  var medalsModal     = document.getElementById("medalsModal");
+  var medalsHelpBtn   = document.getElementById("medalsHelpBtn");
+  var medalsModalClose= document.getElementById("medalsModalClose");
+
+  medalsHelpBtn.addEventListener("click", function () {
+    medalsModal.hidden = false;
+    medalsModalClose.focus();
+  });
+  medalsModalClose.addEventListener("click", function () {
+    medalsModal.hidden = true;
+    medalsHelpBtn.focus();
+  });
+  medalsModal.addEventListener("click", function (e) {
+    if (e.target === medalsModal) { medalsModal.hidden = true; medalsHelpBtn.focus(); }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !medalsModal.hidden) { medalsModal.hidden = true; medalsHelpBtn.focus(); }
+  });
+
+  var currentLang = "en";
+
+  var TRANSLATIONS = {
+    en: {
+      eyebrow:"Mightiest Governor Event", title:"APPLICATION",
+      subtitle:"Make your case to the council for the MGE legendary hero. Every entry below is weighed — fill it in completely and honestly.",
+      heroInfo:'Ranks 1–50 grant a fixed number of hero medals at the end of the event. A <strong>"fixed" MGE</strong> means these ranks are pre&#8209;assigned to specific players so they do not compete. All players are expected to follow the rules of the fixed event, including <strong>not exceeding the assigned point limits</strong>.',
+      secIdentity:"Governor Identity", secPerf:"Performance Score", secHero:"Hero Preference Score",
+      secMEE:"Previous MEE Performance (No MGE Awarded)", secCase:"Your Case",
+      playerName:"Player name", playerNamePh:"Your in-game name", alliance:"Alliance",
+      power:"Current power", merits:"Current merits", lineup:"Main hero lineup",
+      lineupHint:"(select all that apply)", troop:"Troop tier unlocked (after MGE)",
+      meeRank:"Your last MEE Prep stage rank", meeRankPh:"Choose your rank…",
+      meeRankOpts:["1st place – +20 pts","2nd place – +18 pts","3rd place – +16 pts","4th place – +14 pts","5th place – +12 pts","6th place – +10 pts","7th place – +9 pts","8th place – +8 pts","9th place – +7 pts","10th place – +6 pts","11th–20th – +5 pts","21st–30th – +3 pts","31st–50th – +1 pt","51st or below – +0 pts"],
+      heroChoice:"What hero do you want?", starLevel:"How many stars is your hero now?",
+      medals:"How many medals do you want?",
+      top25q:"Have you finished in the top 25 in any of the last 3 MEE events?",
+      meeDate1:"Most recent top-25 finish – date", meeDate2:"2nd most recent top-25 finish – date", meeDate3:"3rd most recent top-25 finish – date",
+      motivation:"Why should you get the MGE hero?", motivationPh:"Make your case to the council…",
+      meeInfo:'Extra points are awarded for past top&#8209;25 MEE finishes where you did <strong>not</strong> receive MGE. Each skip = <strong>+2 points</strong>, max <strong>6</strong>.',
+      mainHint:"The primary hero featured in the MGE event. Gives the highest scoring priority because it provides the biggest kingdom benefit.",
+      otherHint:"Secondary hero available in the event. Lower priority than the main hero.",
+      customHint:"A hero chosen by the player outside the main MGE rotation. Lowest priority in scoring.",
+      submit:"Submit Application", submitting:"Submitting…",
+      successEyebrow:"Application Received", successTitle:"The council has your case on file.",
+      successScore:"Recorded score:", submitAnother:"Submit another response",
+      modalTitle:"Rank · Points · Medals", colRank:"Rank", colPoints:"Points", colMGE:"Medals MGE", colCustom:"Medals Custom",
+      tierRecruit:"Recruit", tierVeteran:"Veteran", tierChampion:"Champion", tierLegendary:"Legendary"
+    },
+    es: {
+      eyebrow:"Evento del Gobernador Más Poderoso", title:"SOLICITUD",
+      subtitle:"Presenta tu caso al consejo para obtener el héroe legendario del MGE. Cada respuesta es evaluada — rellénala de forma completa y honesta.",
+      heroInfo:'Los rangos 1–50 otorgan un número fijo de medallas de héroe al final del evento. Un MGE <strong>"fijo"</strong> significa que estos rangos están pre&#8209;asignados a jugadores específicos, por lo que no compiten. Se espera que todos los jugadores sigan las reglas del evento fijo, incluyendo <strong>no superar los límites de puntos asignados</strong>.',
+      secIdentity:"Identidad del Gobernador", secPerf:"Puntuación de Rendimiento", secHero:"Puntuación de Preferencia de Héroe",
+      secMEE:"Rendimiento MEE Anterior (Sin MGE Otorgado)", secCase:"Tu Caso",
+      playerName:"Nombre del jugador", playerNamePh:"Tu nombre en el juego", alliance:"Alianza",
+      power:"Poder actual", merits:"Méritos actuales", lineup:"Formación del héroe principal",
+      lineupHint:"(selecciona todos los que correspondan)", troop:"Nivel de tropa desbloqueado (después del MGE)",
+      meeRank:"Tu último rango en la etapa de preparación MEE", meeRankPh:"Elige tu rango…",
+      meeRankOpts:["1.º lugar – +20 pts","2.º lugar – +18 pts","3.º lugar – +16 pts","4.º lugar – +14 pts","5.º lugar – +12 pts","6.º lugar – +10 pts","7.º lugar – +9 pts","8.º lugar – +8 pts","9.º lugar – +7 pts","10.º lugar – +6 pts","11.º–20.º – +5 pts","21.º–30.º – +3 pts","31.º–50.º – +1 pt","51.º o inferior – +0 pts"],
+      heroChoice:"¿Qué héroe quieres?", starLevel:"¿Cuántas estrellas tiene tu héroe ahora?",
+      medals:"¿Cuántas medallas quieres?",
+      top25q:"¿Has terminado entre los 25 primeros en alguno de los últimos 3 eventos MEE?",
+      meeDate1:"Top-25 más reciente – fecha", meeDate2:"2.º top-25 más reciente – fecha", meeDate3:"3.º top-25 más reciente – fecha",
+      motivation:"¿Por qué deberías recibir el héroe MGE?", motivationPh:"Presenta tu caso al consejo…",
+      meeInfo:'Se otorgan puntos extra por finales top&#8209;25 en MEE anteriores donde <strong>no</strong> recibiste MGE. Cada omisión = <strong>+2 puntos</strong>, máx <strong>6</strong>.',
+      mainHint:"El héroe principal del evento MGE. Tiene la mayor prioridad de puntuación por ofrecer el mayor beneficio al reino.",
+      otherHint:"Héroe secundario disponible en el evento. Menor prioridad que el héroe principal.",
+      customHint:"Un héroe elegido por el jugador fuera de la rotación principal del MGE. Menor prioridad en la puntuación.",
+      submit:"Enviar Solicitud", submitting:"Enviando…",
+      successEyebrow:"Solicitud Recibida", successTitle:"El consejo tiene tu caso archivado.",
+      successScore:"Puntuación registrada:", submitAnother:"Enviar otra respuesta",
+      modalTitle:"Rango · Puntos · Medallas", colRank:"Rango", colPoints:"Puntos", colMGE:"Medallas MGE", colCustom:"Medallas Personalizadas",
+      tierRecruit:"Recluta", tierVeteran:"Veterano", tierChampion:"Campeón", tierLegendary:"Legendario"
+    },
+    pt: {
+      eyebrow:"Evento do Governador Mais Poderoso", title:"INSCRIÇÃO",
+      subtitle:"Apresente seu caso ao conselho para o herói lendário do MGE. Cada resposta é avaliada — preencha de forma completa e honesta.",
+      heroInfo:'As classificações 1–50 concedem um número fixo de medalhas de herói no final do evento. Um MGE <strong>"fixo"</strong> significa que essas classificações são pré&#8209;atribuídas a jogadores específicos, portanto não competem. Todos os jogadores devem seguir as regras do evento fixo, incluindo <strong>não ultrapassar os limites de pontos atribuídos</strong>.',
+      secIdentity:"Identidade do Governador", secPerf:"Pontuação de Desempenho", secHero:"Pontuação de Preferência de Herói",
+      secMEE:"Desempenho MEE Anterior (Sem MGE Concedido)", secCase:"Seu Caso",
+      playerName:"Nome do jogador", playerNamePh:"Seu nome no jogo", alliance:"Aliança",
+      power:"Poder atual", merits:"Méritos atuais", lineup:"Formação principal do herói",
+      lineupHint:"(selecione todos que se aplicam)", troop:"Nível de tropa desbloqueado (após o MGE)",
+      meeRank:"Sua última classificação na fase de preparação MEE", meeRankPh:"Escolha sua classificação…",
+      meeRankOpts:["1.º lugar – +20 pts","2.º lugar – +18 pts","3.º lugar – +16 pts","4.º lugar – +14 pts","5.º lugar – +12 pts","6.º lugar – +10 pts","7.º lugar – +9 pts","8.º lugar – +8 pts","9.º lugar – +7 pts","10.º lugar – +6 pts","11.º–20.º – +5 pts","21.º–30.º – +3 pts","31.º–50.º – +1 pt","51.º ou abaixo – +0 pts"],
+      heroChoice:"Qual herói você quer?", starLevel:"Quantas estrelas tem seu herói agora?",
+      medals:"Quantas medalhas você quer?",
+      top25q:"Você terminou entre os 25 primeiros em algum dos últimos 3 eventos MEE?",
+      meeDate1:"Top-25 mais recente – data", meeDate2:"2.º top-25 mais recente – data", meeDate3:"3.º top-25 mais recente – data",
+      motivation:"Por que você deveria receber o herói MGE?", motivationPh:"Apresente seu caso ao conselho…",
+      meeInfo:'Pontos extras são concedidos por finais top&#8209;25 em MEEs anteriores onde você <strong>não</strong> recebeu MGE. Cada pulo = <strong>+2 pontos</strong>, máx <strong>6</strong>.',
+      mainHint:"O herói principal do evento MGE. Tem a maior prioridade de pontuação por oferecer o maior benefício ao reino.",
+      otherHint:"Herói secundário disponível no evento. Prioridade menor que o herói principal.",
+      customHint:"Um herói escolhido pelo jogador fora da rotação principal do MGE. Menor prioridade na pontuação.",
+      submit:"Enviar Inscrição", submitting:"Enviando…",
+      successEyebrow:"Inscrição Recebida", successTitle:"O conselho registrou seu caso.",
+      successScore:"Pontuação registrada:", submitAnother:"Enviar outra resposta",
+      modalTitle:"Classificação · Pontos · Medalhas", colRank:"Rank", colPoints:"Pontos", colMGE:"Medalhas MGE", colCustom:"Medalhas Personalizadas",
+      tierRecruit:"Recruta", tierVeteran:"Veterano", tierChampion:"Campeão", tierLegendary:"Lendário"
+    },
+    id: {
+      eyebrow:"Event Gubernur Terkuat", title:"PENDAFTARAN",
+      subtitle:"Sampaikan kasusmu kepada dewan untuk mendapatkan hero legendaris MGE. Setiap jawaban akan dinilai — isi dengan lengkap dan jujur.",
+      heroInfo:'Peringkat 1–50 memberikan jumlah tetap medali hero di akhir event. MGE <strong>"tetap"</strong> berarti peringkat ini sudah ditentukan untuk pemain tertentu sehingga mereka tidak bersaing. Semua pemain diharapkan mengikuti aturan event tetap, termasuk <strong>tidak melebihi batas poin yang ditentukan</strong>.',
+      secIdentity:"Identitas Gubernur", secPerf:"Skor Performa", secHero:"Skor Preferensi Hero",
+      secMEE:"Performa MEE Sebelumnya (Tanpa MGE Diberikan)", secCase:"Kasusmu",
+      playerName:"Nama pemain", playerNamePh:"Nama dalam game kamu", alliance:"Aliansi",
+      power:"Kekuatan saat ini", merits:"Merit saat ini", lineup:"Susunan hero utama",
+      lineupHint:"(pilih semua yang berlaku)", troop:"Tier pasukan yang dibuka (setelah MGE)",
+      meeRank:"Peringkat terakhirmu di tahap Persiapan MEE", meeRankPh:"Pilih peringkatmu…",
+      meeRankOpts:["Peringkat 1 – +20 pts","Peringkat 2 – +18 pts","Peringkat 3 – +16 pts","Peringkat 4 – +14 pts","Peringkat 5 – +12 pts","Peringkat 6 – +10 pts","Peringkat 7 – +9 pts","Peringkat 8 – +8 pts","Peringkat 9 – +7 pts","Peringkat 10 – +6 pts","Peringkat 11–20 – +5 pts","Peringkat 21–30 – +3 pts","Peringkat 31–50 – +1 pt","Peringkat 51 ke bawah – +0 pts"],
+      heroChoice:"Hero apa yang kamu inginkan?", starLevel:"Berapa bintang heromu sekarang?",
+      medals:"Berapa medali yang kamu inginkan?",
+      top25q:"Apakah kamu pernah masuk 25 besar di salah satu dari 3 event MEE terakhir?",
+      meeDate1:"Top-25 terbaru – tanggal", meeDate2:"Top-25 terbaru ke-2 – tanggal", meeDate3:"Top-25 terbaru ke-3 – tanggal",
+      motivation:"Mengapa kamu seharusnya mendapatkan hero MGE?", motivationPh:"Sampaikan kasusmu kepada dewan…",
+      meeInfo:'Poin tambahan diberikan untuk hasil top&#8209;25 MEE sebelumnya di mana kamu <strong>tidak</strong> menerima MGE. Setiap lewatan = <strong>+2 poin</strong>, maks <strong>6</strong>.',
+      mainHint:"Hero utama yang ditampilkan dalam event MGE. Memiliki prioritas skor tertinggi karena memberikan manfaat terbesar bagi kerajaan.",
+      otherHint:"Hero sekunder yang tersedia dalam event. Prioritas lebih rendah dari hero utama.",
+      customHint:"Hero yang dipilih pemain di luar rotasi MGE utama. Prioritas terendah dalam penilaian.",
+      submit:"Kirim Pendaftaran", submitting:"Mengirim…",
+      successEyebrow:"Pendaftaran Diterima", successTitle:"Dewan telah mencatat kasusmu.",
+      successScore:"Skor yang tercatat:", submitAnother:"Kirim respons lain",
+      modalTitle:"Peringkat · Poin · Medali", colRank:"Peringkat", colPoints:"Poin", colMGE:"Medali MGE", colCustom:"Medali Kustom",
+      tierRecruit:"Rekrutan", tierVeteran:"Veteran", tierChampion:"Juara", tierLegendary:"Legendaris"
+    },
+    fr: {
+      eyebrow:"Événement du Gouverneur le Plus Puissant", title:"CANDIDATURE",
+      subtitle:"Présentez votre dossier au conseil pour le héros légendaire du MGE. Chaque réponse est évaluée — remplissez-la complètement et honnêtement.",
+      heroInfo:'Les rangs 1–50 accordent un nombre fixe de médailles de héros à la fin de l\'événement. Un MGE <strong>« fixe »</strong> signifie que ces rangs sont pré&#8209;attribués à des joueurs spécifiques qui ne participent donc pas à la compétition. Tous les joueurs doivent respecter les règles de l\'événement fixe, notamment <strong>ne pas dépasser les limites de points attribuées</strong>.',
+      secIdentity:"Identité du Gouverneur", secPerf:"Score de Performance", secHero:"Score de Préférence de Héros",
+      secMEE:"Performance MEE Précédente (Sans MGE Attribué)", secCase:"Votre Dossier",
+      playerName:"Nom du joueur", playerNamePh:"Votre pseudo en jeu", alliance:"Alliance",
+      power:"Puissance actuelle", merits:"Mérites actuels", lineup:"Formation principale du héros",
+      lineupHint:"(sélectionnez tout ce qui s'applique)", troop:"Niveau de troupe débloqué (après le MGE)",
+      meeRank:"Votre dernier rang à l'étape de préparation MEE", meeRankPh:"Choisissez votre rang…",
+      meeRankOpts:["1re place – +20 pts","2e place – +18 pts","3e place – +16 pts","4e place – +14 pts","5e place – +12 pts","6e place – +10 pts","7e place – +9 pts","8e place – +8 pts","9e place – +7 pts","10e place – +6 pts","11e–20e – +5 pts","21e–30e – +3 pts","31e–50e – +1 pt","51e ou moins – +0 pt"],
+      heroChoice:"Quel héros souhaitez-vous ?", starLevel:"Combien d'étoiles a votre héros actuellement ?",
+      medals:"Combien de médailles souhaitez-vous ?",
+      top25q:"Avez-vous terminé dans le top 25 lors d'un des 3 derniers événements MEE ?",
+      meeDate1:"Dernier top-25 – date", meeDate2:"2e top-25 le plus récent – date", meeDate3:"3e top-25 le plus récent – date",
+      motivation:"Pourquoi devriez-vous recevoir le héros MGE ?", motivationPh:"Présentez votre dossier au conseil…",
+      meeInfo:'Des points supplémentaires sont accordés pour les finales top&#8209;25 des MEE passés où vous n\'avez <strong>pas</strong> reçu de MGE. Chaque saut = <strong>+2 points</strong>, max <strong>6</strong>.',
+      mainHint:"Le héros principal présenté lors de l'événement MGE. Offre la priorité de score la plus élevée car il procure le plus grand avantage au royaume.",
+      otherHint:"Héros secondaire disponible lors de l'événement. Priorité inférieure au héros principal.",
+      customHint:"Un héros choisi par le joueur en dehors de la rotation principale du MGE. Priorité la plus faible dans la notation.",
+      submit:"Soumettre la Candidature", submitting:"Envoi en cours…",
+      successEyebrow:"Candidature Reçue", successTitle:"Le conseil a enregistré votre dossier.",
+      successScore:"Score enregistré :", submitAnother:"Soumettre une autre réponse",
+      modalTitle:"Rang · Points · Médailles", colRank:"Rang", colPoints:"Points", colMGE:"Médailles MGE", colCustom:"Médailles Personnalisées",
+      tierRecruit:"Recrue", tierVeteran:"Vétéran", tierChampion:"Champion", tierLegendary:"Légendaire"
+    },
+    tr: {
+      eyebrow:"En Güçlü Vali Etkinliği", title:"BAŞVURU",
+      subtitle:"MGE efsanevi kahramanı için konseye davanızı sunun. Aşağıdaki her giriş değerlendirilir — eksiksiz ve dürüst doldurun.",
+      heroInfo:'"Sabit" bir MGE, 1–50 sıralamalarının belirli oyunculara önceden atandığı ve rekabet etmedikleri anlamına gelir. <strong>Belirlenen puan sınırlarını aşmamak</strong> dahil tüm kuralların takip edilmesi beklenir.',
+      secIdentity:"Vali Kimliği", secPerf:"Performans Puanı", secHero:"Kahraman Tercihi Puanı",
+      secMEE:"Önceki MEE Performansı (MGE Verilmedi)", secCase:"Davanız",
+      playerName:"Oyuncu adı", playerNamePh:"Oyun içi adınız", alliance:"İttifak",
+      power:"Mevcut güç", merits:"Mevcut liyakat", lineup:"Ana kahraman dizilişi",
+      lineupHint:"(geçerli olanların hepsini seçin)", troop:"Kilit açılan birlik kademesi (MGE sonrası)",
+      meeRank:"Son MEE Hazırlık aşaması sıralamanız", meeRankPh:"Sıralamanızı seçin…",
+      meeRankOpts:["1. sıra – +20 puan","2. sıra – +18 puan","3. sıra – +16 puan","4. sıra – +14 puan","5. sıra – +12 puan","6. sıra – +10 puan","7. sıra – +9 puan","8. sıra – +8 puan","9. sıra – +7 puan","10. sıra – +6 puan","11.–20. sıra – +5 puan","21.–30. sıra – +3 puan","31.–50. sıra – +1 puan","51. veya altı – +0 puan"],
+      heroChoice:"Hangi kahramanı istiyorsunuz?", starLevel:"Kahramanınız şu an kaç yıldızlı?",
+      medals:"Kaç madalya istiyorsunuz?",
+      top25q:"Son 3 MEE etkinliğinden herhangi birinde ilk 25'e girdiniz mi?",
+      meeDate1:"En son ilk-25 bitişi – tarih", meeDate2:"İkinci en son ilk-25 bitişi – tarih", meeDate3:"Üçüncü en son ilk-25 bitişi – tarih",
+      motivation:"MGE kahramanını neden almalısınız?", motivationPh:"Davanızı konseye sunun…",
+      meeInfo:'MGE <strong>almadığınız</strong> önceki MEE etkinliklerinde ilk 25\'e girmek için ek puanlar verilir. Her atlama = <strong>+2 puan</strong>, maks <strong>6</strong>.',
+      mainHint:"MGE etkinliğinde öne çıkan ana kahraman. En büyük krallık avantajını sağladığı için en yüksek puanlama önceliğine sahiptir.",
+      otherHint:"Etkinlikte mevcut ikincil kahraman. Ana kahramandan daha düşük öncelik.",
+      customHint:"Oyuncu tarafından ana MGE rotasyonu dışında seçilen bir kahraman. Puanlamada en düşük öncelik.",
+      submit:"Başvuruyu Gönder", submitting:"Gönderiliyor…",
+      successEyebrow:"Başvuru Alındı", successTitle:"Konsey davanızı kaydetti.",
+      successScore:"Kaydedilen puan:", submitAnother:"Başka bir yanıt gönder",
+      modalTitle:"Sıralama · Puan · Madalya", colRank:"Sıralama", colPoints:"Puan", colMGE:"MGE Madalyaları", colCustom:"Özel Madalyalar",
+      tierRecruit:"Acemi", tierVeteran:"Tecrübeli", tierChampion:"Şampiyon", tierLegendary:"Efsanevi"
+    },
+    nl: {
+      eyebrow:"Machtigste Gouverneur Evenement", title:"AANMELDING",
+      subtitle:"Presenteer uw zaak aan de raad voor de MGE legendarische held. Elke invoer wordt gewogen — vul het volledig en eerlijk in.",
+      heroInfo:'Rang 1–50 geeft een vast aantal heldmedailles aan het einde van het evenement. Een <strong>"vast"</strong> MGE betekent dat deze rangen vooraf zijn toegewezen aan specifieke spelers, zodat zij niet meedingen. Alle spelers worden geacht de regels van het vaste evenement te volgen, inclusief <strong>het niet overschrijden van de toegewezen puntlimieten</strong>.',
+      secIdentity:"Gouverneur Identiteit", secPerf:"Prestatiescore", secHero:"Heldvoorkeur Score",
+      secMEE:"Vorige MEE Prestatie (Geen MGE Toegekend)", secCase:"Uw Zaak",
+      playerName:"Spelernaam", playerNamePh:"Uw naam in het spel", alliance:"Alliantie",
+      power:"Huidige kracht", merits:"Huidige verdiensten", lineup:"Hoofdheld opstelling",
+      lineupHint:"(selecteer alles wat van toepassing is)", troop:"Vrijgeschakeld troepenniveau (na MGE)",
+      meeRank:"Uw laatste MEE Voorbereiding rang", meeRankPh:"Kies uw rang…",
+      meeRankOpts:["1e plaats – +20 pts","2e plaats – +18 pts","3e plaats – +16 pts","4e plaats – +14 pts","5e plaats – +12 pts","6e plaats – +10 pts","7e plaats – +9 pts","8e plaats – +8 pts","9e plaats – +7 pts","10e plaats – +6 pts","11e–20e – +5 pts","21e–30e – +3 pts","31e–50e – +1 pt","51e of lager – +0 pts"],
+      heroChoice:"Welke held wilt u?", starLevel:"Hoeveel sterren heeft uw held nu?",
+      medals:"Hoeveel medailles wilt u?",
+      top25q:"Heeft u in de afgelopen 3 MEE-evenementen de top 25 gehaald?",
+      meeDate1:"Meest recente top-25 finish – datum", meeDate2:"Op één na meest recente top-25 finish – datum", meeDate3:"Op twee na meest recente top-25 finish – datum",
+      motivation:"Waarom zou u de MGE held moeten krijgen?", motivationPh:"Presenteer uw zaak aan de raad…",
+      meeInfo:'Extra punten worden toegekend voor vorige top&#8209;25 MEE finishes waarbij u <strong>geen</strong> MGE heeft ontvangen. Elke overgeslagen = <strong>+2 punten</strong>, max <strong>6</strong>.',
+      mainHint:"De primaire held in het MGE-evenement. Heeft de hoogste scoringsprioriteit omdat het het grootste koninkrijksvoordeel biedt.",
+      otherHint:"Secundaire held beschikbaar in het evenement. Lagere prioriteit dan de hoofdheld.",
+      customHint:"Een held gekozen door de speler buiten de hoofd-MGE-rotatie. Laagste prioriteit in score.",
+      submit:"Aanmelding Verzenden", submitting:"Verzenden…",
+      successEyebrow:"Aanmelding Ontvangen", successTitle:"De raad heeft uw zaak geregistreerd.",
+      successScore:"Geregistreerde score:", submitAnother:"Nog een reactie versturen",
+      modalTitle:"Rang · Punten · Medailles", colRank:"Rang", colPoints:"Punten", colMGE:"Medailles MGE", colCustom:"Aangepaste Medailles",
+      tierRecruit:"Rekruut", tierVeteran:"Veteraan", tierChampion:"Kampioen", tierLegendary:"Legendarisch"
+    }
+  };
+
+  function g(id){ return document.getElementById(id); }
+
+  function setLang(code) {
+    var t = TRANSLATIONS[code] || TRANSLATIONS["en"];
+    currentLang = code;
+
+    g("i18n-eyebrow").textContent = t.eyebrow;
+    g("i18n-title").textContent = t.title;
+    g("i18n-subtitle").textContent = t.subtitle;
+    g("i18n-hero-info").innerHTML = t.heroInfo;
+
+    g("i18n-sec-identity").textContent = t.secIdentity;
+    g("i18n-sec-perf").textContent = t.secPerf;
+    g("i18n-sec-hero").textContent = t.secHero;
+    g("i18n-sec-mee").textContent = t.secMEE;
+    g("i18n-sec-case").textContent = t.secCase;
+
+    g("i18n-playername").textContent = t.playerName;
+    g("i18n-alliance").textContent = t.alliance;
+    g("i18n-power").textContent = t.power;
+    g("i18n-merits").textContent = t.merits;
+    g("i18n-lineup").textContent = t.lineup;
+    g("i18n-lineup-hint").textContent = t.lineupHint;
+    g("i18n-troop").textContent = t.troop;
+    g("i18n-meerank").textContent = t.meeRank;
+    g("i18n-hero-choice").textContent = t.heroChoice;
+    g("i18n-starlevel").textContent = t.starLevel;
+    g("i18n-medals").textContent = t.medals;
+    g("i18n-top25q").textContent = t.top25q;
+    g("i18n-meedate1").textContent = t.meeDate1;
+    g("i18n-meedate2").textContent = t.meeDate2;
+    g("i18n-meedate3").textContent = t.meeDate3;
+    g("i18n-motivation").textContent = t.motivation;
+
+    g("playerName").placeholder = t.playerNamePh;
+    g("motivation").placeholder = t.motivationPh;
+
+    var sel = g("meeRankLast");
+    var opts = sel.querySelectorAll("option[value]:not([value=''])");
+    t.meeRankOpts.forEach(function(txt, i){ if (opts[i]) opts[i].text = txt; });
+    sel.querySelector("option[value='']").text = t.meeRankPh;
+
+    g("i18n-mee-info").innerHTML = t.meeInfo;
+
+    g("mainMgeHint").textContent = t.mainHint;
+    g("otherMgeHint").textContent = t.otherHint;
+    g("customHeroHint").textContent = t.customHint;
+
+    if (!submitBtn.disabled) submitBtn.textContent = t.submit;
+
+    g("i18n-success-eyebrow").textContent = t.successEyebrow;
+    g("i18n-success-title").textContent = t.successTitle;
+    g("i18n-success-score").textContent = t.successScore;
+    resetBtn.textContent = t.submitAnother;
+
+    g("i18n-modal-title").textContent = t.modalTitle;
+    g("i18n-col-rank").textContent = t.colRank;
+    g("i18n-col-points").textContent = t.colPoints;
+    g("i18n-col-mge").textContent = t.colMGE;
+    g("i18n-col-custom").textContent = t.colCustom;
+
+    TIERS[0].label = t.tierRecruit;
+    TIERS[1].label = t.tierVeteran;
+    TIERS[2].label = t.tierChampion;
+    TIERS[3].label = t.tierLegendary;
+    recalc();
+
+    document.querySelectorAll(".lang-btn").forEach(function(btn){
+      btn.classList.toggle("lang-active", btn.dataset.lang === code);
+    });
+
+    try { localStorage.setItem("mge-lang", code); } catch(e){}
+  }
+
+  document.getElementById("langPicker").addEventListener("click", function(e){
+    if (e.target.classList.contains("lang-btn")) setLang(e.target.dataset.lang);
+  });
+
+  try {
+    var saved = localStorage.getItem("mge-lang");
+    if (saved && TRANSLATIONS[saved]) setLang(saved);
+  } catch(e){}
+
+  setSubmitting = function(on) {
+    submitBtn.disabled = on;
+    var t = TRANSLATIONS[currentLang] || TRANSLATIONS["en"];
+    submitBtn.textContent = on ? t.submitting : t.submit;
+  };
+
+})();
+</script>
+</body>
+</html>
